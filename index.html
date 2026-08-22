@@ -1,0 +1,602 @@
+<title>Beg Office HQ</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Jost:wght@400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+<!--
+  ADDING A BEGGAR: scroll to the bottom <script> and add one line to the
+  PROFILES array — just the X profile URL, nothing else:
+
+    "https://x.com/some_handle",
+
+  The desk, the handle, the color, the header count, and the ticker all
+  update automatically. No art tools, no image editing, no size limit.
+-->
+
+<style>
+  :root {
+    --bg: #12302d;
+    --bg-deep: #0c2320;
+    --bezel: #1d403b;
+    --bezel-hi: #2a534c;
+    --ink: #f4eedd;
+    --ink-dim: #a9c9c1;
+    --accent: #ff9a63;
+    --accent-2: #7fe3d4;
+    --card: #163732;
+    --card-border: #37655d;
+    --shadow: rgba(4, 16, 14, 0.55);
+    --tile-wall-top: #6c9694;
+    --tile-wall-bottom: #5e8584;
+    --font-display: "Press Start 2P", "Courier New", monospace;
+    --font-body: "Jost", "Trebuchet MS", sans-serif;
+    --font-mono: "Space Mono", "Courier New", monospace;
+  }
+
+  * { box-sizing: border-box; }
+
+  html, body { margin: 0; padding: 0; }
+
+  body {
+    background:
+      radial-gradient(ellipse 900px 500px at 50% -10%, rgba(127, 227, 212, 0.10), transparent 60%),
+      var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: clamp(20px, 5vw, 56px) 16px 40px;
+    overflow-x: hidden;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { animation-duration: 0.001ms !important; animation-iteration-count: 1 !important; transition-duration: 0.001ms !important; }
+  }
+
+  .eyebrow {
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.24em;
+    text-transform: uppercase;
+    color: var(--accent-2);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    text-align: center;
+  }
+
+  .eyebrow .dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: var(--accent-2);
+    box-shadow: 0 0 8px var(--accent-2);
+    animation: blink 2.2s ease-in-out infinite;
+    flex: none;
+  }
+
+  @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
+
+  h1 {
+    font-family: var(--font-display);
+    font-size: clamp(1.4rem, 4.4vw, 2.6rem);
+    line-height: 1.35;
+    margin: 14px 0 6px;
+    text-align: center;
+    text-wrap: balance;
+    color: var(--ink);
+    text-shadow: 3px 3px 0 var(--shadow), 0 0 22px rgba(255, 154, 99, 0.25);
+  }
+
+  .sub {
+    font-family: var(--font-body);
+    font-weight: 500;
+    color: var(--ink-dim);
+    max-width: 46ch;
+    text-align: center;
+    font-size: 1rem;
+    margin: 0 0 30px;
+  }
+
+  /* ---- arcade-cabinet frame around the office ---- */
+  .cabinet {
+    position: relative;
+    width: 100%;
+    max-width: 1180px;
+    background: linear-gradient(180deg, var(--bezel-hi), var(--bezel));
+    border-radius: 22px;
+    padding: clamp(14px, 2.6vw, 26px);
+    box-shadow:
+      0 24px 60px var(--shadow),
+      inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
+
+  .cabinet::before,
+  .cabinet::after,
+  .screw {
+    content: "";
+    position: absolute;
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #cfd9d6, #4c5f5a 70%);
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,0.3);
+  }
+  .cabinet::before { top: 12px; left: 12px; }
+  .cabinet::after { top: 12px; right: 12px; }
+  .screw.bl { bottom: 12px; left: 12px; }
+  .screw.br { bottom: 12px; right: 12px; }
+
+  /* ---- the office floor: a responsive grid, one tile per beggar ---- */
+  .office {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(128px, 1fr));
+    gap: clamp(8px, 1.4vw, 14px);
+    background: var(--tile-wall-top);
+    border-radius: 12px;
+    padding: clamp(8px, 1.4vw, 14px);
+    box-shadow: inset 0 0 0 3px #0a1e1c, inset 0 0 40px rgba(0,0,0,0.35);
+  }
+
+  /* each desk is its own hotspot; position:relative so its tooltip card
+     can anchor to it without being clipped by anything else on the page */
+  .spot {
+    position: relative;
+    border: none;
+    background: transparent;
+    padding: 0;
+    cursor: pointer;
+    aspect-ratio: 46 / 62;
+    border-radius: 8px;
+  }
+
+  .spot:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
+
+  /* the clipped, visual-only layer: canvas + CRT overlay, rounded corners */
+  .tile-clip {
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #000;
+    box-shadow: inset 0 0 0 2px #0a1e1c, inset 0 0 16px rgba(0,0,0,0.5);
+  }
+
+  .tile-clip canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+  }
+
+  .tile-scanlines {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(0, 0, 0, 0.16) 0px,
+      rgba(0, 0, 0, 0.16) 1px,
+      transparent 2px,
+      transparent 3px
+    );
+    mix-blend-mode: multiply;
+  }
+
+  .tile-vignette {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    box-shadow: inset 0 0 22px 6px rgba(0, 0, 0, 0.55);
+  }
+
+  .glow {
+    position: absolute;
+    inset: 0;
+    border-radius: 8px;
+    background: radial-gradient(ellipse at 50% 35%, var(--dot-color, var(--accent-2)), transparent 72%);
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    pointer-events: none;
+  }
+  .spot:hover .glow, .spot:focus-visible .glow, .spot.active .glow { opacity: 0.3; }
+
+  /* ---- tooltip card ---- */
+  .card {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translate(-50%, 6px);
+    margin-bottom: 8px;
+    width: max-content;
+    max-width: min(78vw, 230px);
+    background: var(--card);
+    border: 2px solid var(--card-border);
+    border-radius: 4px;
+    padding: 10px 12px 11px;
+    box-shadow: 0 12px 28px var(--shadow), 0 0 0 4px rgba(0,0,0,0.25);
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.16s ease, transform 0.16s ease;
+    z-index: 5;
+    text-align: left;
+  }
+
+  .spot.flip-start .card { left: 0; transform: translate(0, 6px); }
+  .spot.flip-start.show .card { transform: translate(0, 0); }
+  .spot.flip-end .card { left: auto; right: 0; transform: translate(0, 6px); }
+  .spot.flip-end.show .card { transform: translate(0, 0); }
+
+  .spot:hover .card,
+  .spot:focus-visible .card,
+  .spot.active .card,
+  .spot.show .card {
+    opacity: 1;
+    visibility: visible;
+  }
+  .spot:hover .card, .spot:focus-visible .card, .spot.active .card { transform: translate(-50%, 0); }
+  .spot.flip-start:hover .card, .spot.flip-start:focus-visible .card, .spot.flip-start.active .card { transform: translate(0, 0); }
+  .spot.flip-end:hover .card, .spot.flip-end:focus-visible .card, .spot.flip-end.active .card { transform: translate(0, 0); }
+
+  .card::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 6px solid transparent;
+    border-top-color: var(--card-border);
+  }
+  .spot.flip-start .card::after { left: 16px; transform: none; }
+  .spot.flip-end .card::after { left: auto; right: 16px; transform: none; }
+
+  .card-top {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    margin-bottom: 8px;
+  }
+
+  .card-dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--dot-color, var(--accent-2));
+    box-shadow: 0 0 6px var(--dot-color, var(--accent-2));
+    flex: none;
+  }
+
+  .card-handle-big {
+    font-family: var(--font-mono);
+    font-weight: 700;
+    font-size: 0.86rem;
+    color: var(--ink);
+    white-space: nowrap;
+  }
+
+  .card-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: var(--accent-2);
+    text-decoration: none;
+    white-space: nowrap;
+  }
+  .card-link:hover { text-decoration: underline; }
+
+  .hint {
+    margin-top: 18px;
+    font-family: var(--font-mono);
+    font-size: 0.72rem;
+    color: var(--ink-dim);
+    letter-spacing: 0.02em;
+    text-align: center;
+  }
+
+  /* ---- ticker ---- */
+  .ticker {
+    width: 100%;
+    max-width: 1180px;
+    margin-top: 22px;
+    background: var(--bg-deep);
+    border: 1px solid var(--card-border);
+    border-radius: 8px;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .ticker::before, .ticker::after {
+    content: "";
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 36px;
+    z-index: 2;
+    pointer-events: none;
+  }
+  .ticker::before { left: 0; background: linear-gradient(90deg, var(--bg-deep), transparent); }
+  .ticker::after { right: 0; background: linear-gradient(270deg, var(--bg-deep), transparent); }
+
+  .ticker-track {
+    display: flex;
+    width: max-content;
+    gap: 40px;
+    padding: 10px 0;
+    animation: scroll 30s linear infinite;
+  }
+
+  @keyframes scroll {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  .ticker-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--ink-dim);
+    white-space: nowrap;
+  }
+
+  .ticker-item .card-dot { width: 6px; height: 6px; }
+  .ticker-item b { color: var(--ink); font-weight: 700; }
+
+  footer {
+    margin-top: 26px;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--ink-dim);
+    opacity: 0.75;
+    text-align: center;
+  }
+</style>
+
+<div class="eyebrow"><span class="dot"></span><span id="eyebrow-text">LOADING BEGGARS&hellip;</span></div>
+<h1>BEG OFFICE HQ</h1>
+<p class="sub">Zero face reveals. Hover a desk to check the X profile.</p>
+
+<div class="cabinet">
+  <span class="screw bl"></span><span class="screw br"></span>
+  <div class="office" id="office"></div>
+</div>
+
+<p class="hint">hover / tap a desk &middot; each one is a real beggar on X</p>
+
+<div class="ticker">
+  <div class="ticker-track" id="ticker-track"></div>
+</div>
+
+<footer>new beggar? drop their X link in the list &mdash; the desk shows up on its own</footer>
+
+<script>
+  // ---- the only part you should ever need to edit ----
+  // one X profile URL per beggar. add, remove, or reorder freely.
+  const PROFILES = [
+    "https://x.com/biscuit_hq",
+    "https://x.com/midnight_desk",
+    "https://x.com/snowball_ceo",
+    "https://x.com/slate_ops",
+    "https://x.com/patches_biz",
+  ];
+  // ------------------------------------------------------
+
+  const PALETTE = [
+    { base: "#e8934a", shade: "#c97230", ear: "#f7c4b2", led: "#56e2ec" },
+    { base: "#2a2a30", shade: "#3e3e46", ear: "#785a60", led: "#ec5cd2" },
+    { base: "#f5efe0", shade: "#d6cdb6", ear: "#ecb4b0", led: "#ffbe5a" },
+    { base: "#8c97a8", shade: "#6e7a8c", ear: "#d2c2c2", led: "#78ec8c" },
+    { base: "#f4ecda", shade: "#db8c3f", ear: "#e8b0a8", led: "#b08cff", patch2: "#483a2e" },
+    { base: "#23232a", shade: "#373740", ear: "#6e5a5a", led: "#ff7878", patch2: "#ebe6d7" },
+    { base: "#5e3f2d", shade: "#462e20", ear: "#c89678", led: "#ffd65a" },
+    { base: "#b09ea8", shade: "#92808c", ear: "#e1c8cd", led: "#8cffbe" },
+    { base: "#f7c48c", shade: "#d6a066", ear: "#ffdec8", led: "#ffff8c" },
+    { base: "#b0b6bc", shade: "#8c929a", ear: "#dccdcd", led: "#ff8cdc" },
+  ];
+
+  const BEG_LINES = [
+    "spare a like for", "send good vibes to", "tip the jar for",
+    "follow if you can for", "boost the post from", "throw a retweet at",
+  ];
+
+  function parseHandle(url) {
+    try {
+      const u = new URL(url);
+      const parts = u.pathname.split("/").filter(Boolean);
+      if (parts[0]) return "@" + parts[0];
+    } catch (e) { /* fall through */ }
+    const m = String(url).match(/[A-Za-z0-9_]+$/);
+    return m ? "@" + m[0] : "@unknown";
+  }
+
+  // ---- canvas pixel-art desk renderer (46 x 62 design units, upscaled) ----
+  function drawDesk(ctx, colors, tailSide) {
+    const W = 46, H = 62, cx = 23;
+    const WALL_SPLIT = 22, FLOOR_A = "#96683f", FLOOR_B = "#8a5e38", FLOOR_LINE = "#6e4a2a";
+    const MON_TOP = 22, MON_BOTTOM = 34, STAND_BOTTOM = 36, SURFACE_END = 41, FRONT_END = 48;
+    const DESK_HALF_W = 14, HEAD_CY = 22;
+
+    ctx.clearRect(0, 0, W, H);
+
+    // wall gradient
+    const wallTop = [108, 150, 148], wallBottom = [94, 133, 132];
+    for (let y = 0; y < WALL_SPLIT; y++) {
+      const t = y / WALL_SPLIT;
+      const c = wallTop.map((v, i) => Math.round(v + (wallBottom[i] - v) * t));
+      ctx.fillStyle = `rgb(${c[0]},${c[1]},${c[2]})`;
+      ctx.fillRect(0, y, W, 1);
+    }
+    ctx.fillStyle = "#3a2e28";
+    ctx.fillRect(0, WALL_SPLIT, W, 2);
+    for (let y = WALL_SPLIT + 2; y < H; y++) {
+      ctx.fillStyle = (Math.floor(y / 3) % 2 === 0) ? FLOOR_A : FLOOR_B;
+      ctx.fillRect(0, y, W, 1);
+    }
+    ctx.fillStyle = FLOOR_LINE;
+    for (let x = 4; x < W; x += 16) ctx.fillRect(x, WALL_SPLIT + 2, 1, H - WALL_SPLIT - 2);
+
+    const { base, shade, ear, led, patch2 } = colors;
+
+    function tri(x0, y0, x1, y1, x2, y2, fill) {
+      ctx.fillStyle = fill;
+      ctx.beginPath();
+      ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.lineTo(x2, y2);
+      ctx.closePath(); ctx.fill();
+    }
+    function ell(x0, y0, x1, y1, fill) {
+      ctx.fillStyle = fill;
+      const rx = (x1 - x0) / 2, ry = (y1 - y0) / 2;
+      ctx.beginPath();
+      ctx.ellipse(x0 + rx, y0 + ry, rx, ry, 0, 0, Math.PI * 2);
+      ctx.fill();
+    }
+
+    // ears + head (monitor drawn after will occlude the lower part)
+    tri(cx - 8, 38, cx - 4, 30, cx - 1, 38, base);
+    tri(cx - 6, 37, cx - 4, 32, cx - 2, 37, ear);
+    tri(cx + 8, 38, cx + 4, 30, cx + 1, 38, base);
+    tri(cx + 6, 37, cx + 4, 32, cx + 2, 37, ear);
+    ell(cx - 8, HEAD_CY - 8, cx + 8, HEAD_CY + 10, base);
+    if (patch2) {
+      ell(cx - 7, HEAD_CY - 6, cx - 1, HEAD_CY + 2, patch2);
+      ell(cx + 1, HEAD_CY - 2, cx + 7, HEAD_CY + 6, shade);
+    } else {
+      ell(cx - 8, HEAD_CY + 2, cx + 8, HEAD_CY + 10, shade);
+    }
+
+    // monitor
+    const mx0 = cx - 7, mx1 = cx + 7;
+    ctx.fillStyle = "#343438";
+    ctx.fillRect(mx0, MON_TOP, mx1 - mx0, MON_BOTTOM - MON_TOP);
+    ctx.strokeStyle = "#46464e";
+    ctx.strokeRect(mx0 + 0.5, MON_TOP + 0.5, mx1 - mx0 - 1, MON_BOTTOM - MON_TOP - 1);
+    for (let lx = mx0 + 2; lx < mx1 - 1; lx += 3) {
+      ctx.fillStyle = "#46464e";
+      ctx.fillRect(lx, MON_TOP + 2, 1, MON_BOTTOM - MON_TOP - 4);
+    }
+    ell(mx1 - 3, MON_BOTTOM - 3, mx1 - 1, MON_BOTTOM - 1, led);
+    ctx.fillStyle = "#3c3c42";
+    ctx.fillRect(cx - 1, MON_BOTTOM, 2, STAND_BOTTOM - MON_BOTTOM);
+    ctx.fillRect(cx - 3, STAND_BOTTOM - 1, 6, 1);
+
+    // tail
+    const side = tailSide;
+    const bx = cx + side * (DESK_HALF_W + 1), by = FRONT_END - 2;
+    const curl = [
+      [bx, by, 2.6], [bx + side * 4, by - 3, 2.2],
+      [bx + side * 5, by - 8, 1.8], [bx + side * 2, by - 11, 1.3],
+    ];
+    curl.forEach(([px, py, r]) => ell(px - r, py - r, px + r, py + r, base));
+
+    // desk
+    ctx.fillStyle = "#bc845a";
+    ctx.fillRect(cx - DESK_HALF_W, STAND_BOTTOM, DESK_HALF_W * 2, 2);
+    ctx.fillStyle = "#a8703e";
+    ctx.fillRect(cx - DESK_HALF_W, STAND_BOTTOM + 2, DESK_HALF_W * 2, SURFACE_END - STAND_BOTTOM - 2);
+    ctx.fillStyle = "#784e2e";
+    ctx.fillRect(cx - DESK_HALF_W, SURFACE_END, DESK_HALF_W * 2, FRONT_END - SURFACE_END);
+    ctx.fillStyle = "#5a3a22";
+    ctx.fillRect(cx - DESK_HALF_W, SURFACE_END, DESK_HALF_W * 2, 1);
+
+    // keyboard
+    ctx.fillStyle = "#c4c4c8";
+    ctx.fillRect(cx - 6, STAND_BOTTOM - 3, 12, 3);
+    ctx.fillStyle = "#969ba0";
+    ctx.fillRect(cx - 5, STAND_BOTTOM - 2, 10, 1);
+
+    // paws
+    ell(cx - 7, STAND_BOTTOM - 4, cx - 2, STAND_BOTTOM, base);
+    ell(cx + 2, STAND_BOTTOM - 4, cx + 7, STAND_BOTTOM, base);
+  }
+
+  function buildDesk(url, index) {
+    const handle = parseHandle(url);
+    const colors = PALETTE[index % PALETTE.length];
+
+    const btn = document.createElement("button");
+    btn.className = "spot";
+    btn.style.setProperty("--dot-color", colors.led);
+    btn.setAttribute("aria-label", handle + " on X");
+
+    const clip = document.createElement("div");
+    clip.className = "tile-clip";
+    const canvas = document.createElement("canvas");
+    canvas.width = 46; canvas.height = 62;
+    drawDesk(canvas.getContext("2d"), colors, index % 2 === 0 ? 1 : -1);
+    clip.appendChild(canvas);
+    const scan = document.createElement("div");
+    scan.className = "tile-scanlines";
+    clip.appendChild(scan);
+    const vig = document.createElement("div");
+    vig.className = "tile-vignette";
+    clip.appendChild(vig);
+    btn.appendChild(clip);
+
+    const glow = document.createElement("div");
+    glow.className = "glow";
+    btn.appendChild(glow);
+
+    const card = document.createElement("div");
+    card.className = "card";
+    card.innerHTML = `
+      <div class="card-top">
+        <span class="card-dot"></span>
+        <span class="card-handle-big">${handle}</span>
+      </div>
+      <a class="card-link" href="${url}" target="_blank" rel="noopener noreferrer">View X profile &#8599;</a>
+    `;
+    card.querySelector("a").addEventListener("click", (e) => e.stopPropagation());
+    btn.appendChild(card);
+
+    btn.addEventListener("click", () => {
+      const wasActive = btn.classList.contains("active");
+      document.querySelectorAll(".spot.active").forEach((s) => s.classList.remove("active"));
+      if (!wasActive) btn.classList.add("active");
+    });
+
+    function positionCard() {
+      card.classList.remove("measuring");
+      btn.classList.remove("flip-start", "flip-end");
+      const r = card.getBoundingClientRect();
+      if (r.left < 8) btn.classList.add("flip-start");
+      else if (r.right > window.innerWidth - 8) btn.classList.add("flip-end");
+    }
+    btn.addEventListener("mouseenter", () => { btn.classList.add("show"); positionCard(); });
+    btn.addEventListener("mouseleave", () => btn.classList.remove("show"));
+    btn.addEventListener("focus", () => { btn.classList.add("show"); positionCard(); });
+    btn.addEventListener("blur", () => btn.classList.remove("show"));
+
+    return { btn, handle, colors };
+  }
+
+  const office = document.getElementById("office");
+  const built = PROFILES.map((url, i) => buildDesk(url, i));
+  built.forEach(({ btn }) => office.appendChild(btn));
+
+  document.getElementById("eyebrow-text").textContent =
+    PROFILES.length + " BEGGAR" + (PROFILES.length === 1 ? "" : "S") + " ON PAYROLL · STATUS: BEGGING HARD";
+
+  const track = document.getElementById("ticker-track");
+  const items = built.map(({ handle, colors }, i) => `
+    <div class="ticker-item">
+      <span class="card-dot" style="background:${colors.led}; box-shadow:0 0 6px ${colors.led}"></span>
+      ${BEG_LINES[i % BEG_LINES.length]} <b>${handle}</b>
+    </div>
+  `).join("");
+  track.innerHTML = items + items; // duplicate for a seamless loop
+
+  document.addEventListener("click", (e) => {
+    if (!e.target.closest(".spot")) {
+      document.querySelectorAll(".spot.active").forEach((s) => s.classList.remove("active"));
+    }
+  });
+</script>
