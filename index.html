@@ -12,6 +12,14 @@
 
   The desk, the handle, the color, the header count, and the ticker all
   update automatically. No art tools, no image editing, no size limit.
+
+  ADDING A WALLET: find the WALLETS object just below PROFILES and add a
+  line mapping that beggar's X handle (no @) to their Solana address:
+
+    Alex0757: "your solana address here",
+
+  Beggars without an entry there just show "wallet coming soon" — nothing
+  breaks if you leave some blank for now.
 -->
 
 <style>
@@ -155,7 +163,7 @@
 
   .spot:focus-visible { outline: 2px solid var(--accent-2); outline-offset: 2px; }
 
-  /* the clipped, visual-only layer: canvas + CRT overlay, rounded corners */
+  /* the clipped, visual-only layer: 3 stacked canvases + CRT overlay */
   .tile-clip {
     position: absolute;
     inset: 0;
@@ -175,10 +183,30 @@
     image-rendering: crisp-edges;
   }
 
+  /* layer order, idle: bg(0) < head(1) < fg(2) -- fg's monitor rectangle
+     hides the lower half of the head, leaving only ears peeking above it */
+  .layer-bg   { z-index: 0; }
+  .layer-head {
+    z-index: 1;
+    transform: translateY(0);
+    transition: transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1), z-index 0s 0.42s;
+  }
+  .layer-fg   { z-index: 2; }
+
+  /* active, clicked: head jumps above fg and pops up with a bouncy ease.
+     translateY only -- CSS scale() here distorts the sparse canvas content
+     around the wrong anchor point, so "bigger" comes from the art itself. */
+  .spot.active .layer-head {
+    z-index: 3;
+    transform: translateY(-15%);
+    transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), z-index 0s;
+  }
+
   .tile-scanlines {
     position: absolute;
     inset: 0;
     pointer-events: none;
+    z-index: 5;
     background: repeating-linear-gradient(
       to bottom,
       rgba(0, 0, 0, 0.16) 0px,
@@ -193,6 +221,7 @@
     position: absolute;
     inset: 0;
     pointer-events: none;
+    z-index: 6;
     box-shadow: inset 0 0 22px 6px rgba(0, 0, 0, 0.55);
   }
 
@@ -204,6 +233,7 @@
     opacity: 0;
     transition: opacity 0.2s ease;
     pointer-events: none;
+    z-index: 7;
   }
   .spot:hover .glow, .spot:focus-visible .glow, .spot.active .glow { opacity: 0.3; }
 
@@ -215,7 +245,7 @@
     transform: translate(-50%, 6px);
     margin-bottom: 8px;
     width: max-content;
-    max-width: min(78vw, 230px);
+    max-width: min(80vw, 240px);
     background: var(--card);
     border: 2px solid var(--card-border);
     border-radius: 4px;
@@ -225,7 +255,7 @@
     visibility: hidden;
     pointer-events: none;
     transition: opacity 0.16s ease, transform 0.16s ease;
-    z-index: 5;
+    z-index: 9;
     text-align: left;
   }
 
@@ -282,6 +312,13 @@
     white-space: nowrap;
   }
 
+  .card-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+  }
+
   .card-link {
     display: inline-flex;
     align-items: center;
@@ -294,6 +331,62 @@
     white-space: nowrap;
   }
   .card-link:hover { text-decoration: underline; }
+
+  .wallet-toggle {
+    font-family: var(--font-body);
+    font-weight: 600;
+    font-size: 0.78rem;
+    color: var(--ink);
+    background: rgba(255,255,255,0.08);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 3px 10px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .wallet-toggle:hover { background: rgba(255,255,255,0.14); }
+
+  .wallet-panel {
+    display: none;
+    align-items: center;
+    gap: 8px;
+    margin-top: 9px;
+    padding-top: 9px;
+    border-top: 1px dashed var(--card-border);
+  }
+  .card.wallet-open .wallet-panel { display: flex; }
+
+  .wallet-addr {
+    font-family: var(--font-mono);
+    font-size: 0.78rem;
+    color: var(--ink);
+    background: rgba(0,0,0,0.25);
+    border-radius: 4px;
+    padding: 3px 7px;
+    letter-spacing: 0.02em;
+  }
+
+  .wallet-empty {
+    font-family: var(--font-body);
+    font-size: 0.76rem;
+    font-style: italic;
+    color: var(--ink-dim);
+  }
+
+  .wallet-copy {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    font-weight: 700;
+    color: var(--bg-deep);
+    background: var(--accent-2);
+    border: none;
+    border-radius: 4px;
+    padding: 4px 8px;
+    cursor: pointer;
+    white-space: nowrap;
+  }
+  .wallet-copy:hover { filter: brightness(1.08); }
+  .wallet-copy:active { transform: scale(0.96); }
 
   .hint {
     margin-top: 18px;
@@ -388,6 +481,12 @@
     "https://x.com/Alex0757",
     "https://x.com/chloecadence",
   ];
+
+  // optional: give any beggar a Solana wallet by their X handle (no @).
+  // leave it out and their card just shows "wallet coming soon".
+  const WALLETS = {
+    // Alex0757: "7xKXtg2CW3wJShY1CNP1CrPYQtSZzbTAyThnT5gTFpwF",
+  };
   // ------------------------------------------------------
 
   const PALETTE = [
@@ -418,16 +517,33 @@
     return m ? "@" + m[0] : "@unknown";
   }
 
-  // ---- canvas pixel-art desk renderer (46 x 62 design units, upscaled) ----
-  function drawDesk(ctx, colors, tailSide) {
-    const W = 46, H = 62, cx = 23;
-    const WALL_SPLIT = 22, FLOOR_A = "#96683f", FLOOR_B = "#8a5e38", FLOOR_LINE = "#6e4a2a";
-    const MON_TOP = 22, MON_BOTTOM = 34, STAND_BOTTOM = 36, SURFACE_END = 41, FRONT_END = 48;
-    const DESK_HALF_W = 14, HEAD_CY = 22;
+  function truncateWallet(addr) {
+    if (addr.length <= 11) return addr;
+    return addr.slice(0, 4) + "…" + addr.slice(-4);
+  }
 
+  const W = 46, H = 62, cx = 23;
+  const WALL_SPLIT = 22, FLOOR_A = "#96683f", FLOOR_B = "#8a5e38", FLOOR_LINE = "#6e4a2a";
+  const MON_TOP = 22, MON_BOTTOM = 34, STAND_BOTTOM = 36, SURFACE_END = 41, FRONT_END = 48;
+  const DESK_HALF_W = 14, HEAD_CY = 22;
+
+  function ell(ctx, x0, y0, x1, y1, fill) {
+    ctx.fillStyle = fill;
+    const rx = (x1 - x0) / 2, ry = (y1 - y0) / 2;
+    ctx.beginPath();
+    ctx.ellipse(x0 + rx, y0 + ry, rx, ry, 0, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  function tri(ctx, x0, y0, x1, y1, x2, y2, fill) {
+    ctx.fillStyle = fill;
+    ctx.beginPath();
+    ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.lineTo(x2, y2);
+    ctx.closePath(); ctx.fill();
+  }
+
+  // ---- layer 1: wall + floor (always static, bottom layer) ----
+  function drawBackground(ctx) {
     ctx.clearRect(0, 0, W, H);
-
-    // wall gradient
     const wallTop = [108, 150, 148], wallBottom = [94, 133, 132];
     for (let y = 0; y < WALL_SPLIT; y++) {
       const t = y / WALL_SPLIT;
@@ -443,37 +559,45 @@
     }
     ctx.fillStyle = FLOOR_LINE;
     for (let x = 4; x < W; x += 16) ctx.fillRect(x, WALL_SPLIT + 2, 1, H - WALL_SPLIT - 2);
+  }
 
-    const { base, shade, ear, led, patch2 } = colors;
+  // ---- layer 2: ears + head + big eyes (idle: hidden below fg's monitor;
+  //      active: raised above it via CSS transform + z-index) ----
+  function drawHead(ctx, colors) {
+    ctx.clearRect(0, 0, W, H);
+    const { base, shade, ear, patch2 } = colors;
 
-    function tri(x0, y0, x1, y1, x2, y2, fill) {
-      ctx.fillStyle = fill;
-      ctx.beginPath();
-      ctx.moveTo(x0, y0); ctx.lineTo(x1, y1); ctx.lineTo(x2, y2);
-      ctx.closePath(); ctx.fill();
-    }
-    function ell(x0, y0, x1, y1, fill) {
-      ctx.fillStyle = fill;
-      const rx = (x1 - x0) / 2, ry = (y1 - y0) / 2;
-      ctx.beginPath();
-      ctx.ellipse(x0 + rx, y0 + ry, rx, ry, 0, 0, Math.PI * 2);
-      ctx.fill();
-    }
-
-    // ears + head (monitor drawn after will occlude the lower part)
-    tri(cx - 8, 38, cx - 4, 30, cx - 1, 38, base);
-    tri(cx - 6, 37, cx - 4, 32, cx - 2, 37, ear);
-    tri(cx + 8, 38, cx + 4, 30, cx + 1, 38, base);
-    tri(cx + 6, 37, cx + 4, 32, cx + 2, 37, ear);
-    ell(cx - 8, HEAD_CY - 8, cx + 8, HEAD_CY + 10, base);
+    tri(ctx, cx - 8, HEAD_CY - 4, cx - 4, HEAD_CY - 12, cx - 1, HEAD_CY - 4, base);
+    tri(ctx, cx - 6, HEAD_CY - 5, cx - 4, HEAD_CY - 10, cx - 2, HEAD_CY - 5, ear);
+    tri(ctx, cx + 8, HEAD_CY - 4, cx + 4, HEAD_CY - 12, cx + 1, HEAD_CY - 4, base);
+    tri(ctx, cx + 6, HEAD_CY - 5, cx + 4, HEAD_CY - 10, cx + 2, HEAD_CY - 5, ear);
+    ell(ctx, cx - 8, HEAD_CY - 8, cx + 8, HEAD_CY + 10, base);
     if (patch2) {
-      ell(cx - 7, HEAD_CY - 6, cx - 1, HEAD_CY + 2, patch2);
-      ell(cx + 1, HEAD_CY - 2, cx + 7, HEAD_CY + 6, shade);
+      ell(ctx, cx - 7, HEAD_CY - 6, cx - 1, HEAD_CY + 2, patch2);
+      ell(ctx, cx + 1, HEAD_CY - 2, cx + 7, HEAD_CY + 6, shade);
     } else {
-      ell(cx - 8, HEAD_CY + 2, cx + 8, HEAD_CY + 10, shade);
+      ell(ctx, cx - 8, HEAD_CY + 2, cx + 8, HEAD_CY + 10, shade);
     }
 
-    // monitor
+    // big cute eyes -- only meaningfully visible once the head is raised
+    const eyeY = HEAD_CY + 2.5;
+    ell(ctx, cx - 7.6, eyeY - 3.4, cx - 0.8, eyeY + 3.4, "#fff");
+    ell(ctx, cx + 0.8, eyeY - 3.4, cx + 7.6, eyeY + 3.4, "#fff");
+    ell(ctx, cx - 6.2, eyeY - 2.2, cx - 2.2, eyeY + 2.4, "#241c18");
+    ell(ctx, cx + 2.2, eyeY - 2.2, cx + 6.2, eyeY + 2.4, "#241c18");
+    ell(ctx, cx - 5.3, eyeY - 1.8, cx - 3.5, eyeY - 0.1, "#fff");
+    ell(ctx, cx + 3.5, eyeY - 1.8, cx + 5.3, eyeY - 0.1, "#fff");
+    // little blush
+    ell(ctx, cx - 9, eyeY + 3, cx - 5.5, eyeY + 5.4, "rgba(255,140,140,0.45)");
+    ell(ctx, cx + 5.5, eyeY + 3, cx + 9, eyeY + 5.4, "rgba(255,140,140,0.45)");
+  }
+
+  // ---- layer 3: monitor + desk + keyboard + paws + tail (occludes the
+  //      head's lower half in idle state) ----
+  function drawForeground(ctx, colors, tailSide) {
+    ctx.clearRect(0, 0, W, H);
+    const { base, led } = colors;
+
     const mx0 = cx - 7, mx1 = cx + 7;
     ctx.fillStyle = "#343438";
     ctx.fillRect(mx0, MON_TOP, mx1 - mx0, MON_BOTTOM - MON_TOP);
@@ -483,21 +607,19 @@
       ctx.fillStyle = "#46464e";
       ctx.fillRect(lx, MON_TOP + 2, 1, MON_BOTTOM - MON_TOP - 4);
     }
-    ell(mx1 - 3, MON_BOTTOM - 3, mx1 - 1, MON_BOTTOM - 1, led);
+    ell(ctx, mx1 - 3, MON_BOTTOM - 3, mx1 - 1, MON_BOTTOM - 1, led);
     ctx.fillStyle = "#3c3c42";
     ctx.fillRect(cx - 1, MON_BOTTOM, 2, STAND_BOTTOM - MON_BOTTOM);
     ctx.fillRect(cx - 3, STAND_BOTTOM - 1, 6, 1);
 
-    // tail
     const side = tailSide;
     const bx = cx + side * (DESK_HALF_W + 1), by = FRONT_END - 2;
     const curl = [
       [bx, by, 2.6], [bx + side * 4, by - 3, 2.2],
       [bx + side * 5, by - 8, 1.8], [bx + side * 2, by - 11, 1.3],
     ];
-    curl.forEach(([px, py, r]) => ell(px - r, py - r, px + r, py + r, base));
+    curl.forEach(([px, py, r]) => ell(ctx, px - r, py - r, px + r, py + r, base));
 
-    // desk
     ctx.fillStyle = "#bc845a";
     ctx.fillRect(cx - DESK_HALF_W, STAND_BOTTOM, DESK_HALF_W * 2, 2);
     ctx.fillStyle = "#a8703e";
@@ -507,20 +629,26 @@
     ctx.fillStyle = "#5a3a22";
     ctx.fillRect(cx - DESK_HALF_W, SURFACE_END, DESK_HALF_W * 2, 1);
 
-    // keyboard
     ctx.fillStyle = "#c4c4c8";
     ctx.fillRect(cx - 6, STAND_BOTTOM - 3, 12, 3);
     ctx.fillStyle = "#969ba0";
     ctx.fillRect(cx - 5, STAND_BOTTOM - 2, 10, 1);
 
-    // paws
-    ell(cx - 7, STAND_BOTTOM - 4, cx - 2, STAND_BOTTOM, base);
-    ell(cx + 2, STAND_BOTTOM - 4, cx + 7, STAND_BOTTOM, base);
+    ell(ctx, cx - 7, STAND_BOTTOM - 4, cx - 2, STAND_BOTTOM, base);
+    ell(ctx, cx + 2, STAND_BOTTOM - 4, cx + 7, STAND_BOTTOM, base);
+  }
+
+  function makeLayerCanvas(cls) {
+    const c = document.createElement("canvas");
+    c.className = "layer-" + cls;
+    c.width = W; c.height = H;
+    return c;
   }
 
   function buildDesk(url, index) {
     const handle = parseHandle(url);
     const colors = PALETTE[index % PALETTE.length];
+    const walletAddr = WALLETS[handle.replace("@", "")] || null;
 
     const btn = document.createElement("button");
     btn.className = "spot";
@@ -529,10 +657,19 @@
 
     const clip = document.createElement("div");
     clip.className = "tile-clip";
-    const canvas = document.createElement("canvas");
-    canvas.width = 46; canvas.height = 62;
-    drawDesk(canvas.getContext("2d"), colors, index % 2 === 0 ? 1 : -1);
-    clip.appendChild(canvas);
+
+    const bgCanvas = makeLayerCanvas("bg");
+    drawBackground(bgCanvas.getContext("2d"));
+    clip.appendChild(bgCanvas);
+
+    const headCanvas = makeLayerCanvas("head");
+    drawHead(headCanvas.getContext("2d"), colors);
+    clip.appendChild(headCanvas);
+
+    const fgCanvas = makeLayerCanvas("fg");
+    drawForeground(fgCanvas.getContext("2d"), colors, index % 2 === 0 ? 1 : -1);
+    clip.appendChild(fgCanvas);
+
     const scan = document.createElement("div");
     scan.className = "tile-scanlines";
     clip.appendChild(scan);
@@ -552,19 +689,64 @@
         <span class="card-dot"></span>
         <span class="card-handle-big">${handle}</span>
       </div>
-      <a class="card-link" href="${url}" target="_blank" rel="noopener noreferrer">View X profile &#8599;</a>
+      <div class="card-row">
+        <a class="card-link" href="${url}" target="_blank" rel="noopener noreferrer">View X profile &#8599;</a>
+        <button type="button" class="wallet-toggle">Wallet</button>
+      </div>
+      <div class="wallet-panel">
+        ${walletAddr
+          ? `<span class="wallet-addr">${truncateWallet(walletAddr)}</span><button type="button" class="wallet-copy">Copy</button>`
+          : `<span class="wallet-empty">wallet coming soon</span>`}
+      </div>
     `;
-    card.querySelector("a").addEventListener("click", (e) => e.stopPropagation());
+    card.querySelector(".card-link").addEventListener("click", (e) => e.stopPropagation());
+
+    const walletToggle = card.querySelector(".wallet-toggle");
+    walletToggle.addEventListener("click", (e) => {
+      e.stopPropagation();
+      card.classList.toggle("wallet-open");
+    });
+
+    const copyBtn = card.querySelector(".wallet-copy");
+    if (copyBtn) {
+      copyBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const done = () => {
+          copyBtn.textContent = "Copied!";
+          setTimeout(() => { copyBtn.textContent = "Copy"; }, 1500);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(walletAddr).then(done).catch(() => fallbackCopy(walletAddr, done));
+        } else {
+          fallbackCopy(walletAddr, done);
+        }
+      });
+    }
+
+    function fallbackCopy(text, cb) {
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.style.position = "fixed";
+      ta.style.opacity = "0";
+      document.body.appendChild(ta);
+      ta.select();
+      try { document.execCommand("copy"); cb(); } catch (err) { /* ignore */ }
+      document.body.removeChild(ta);
+    }
+
     btn.appendChild(card);
 
     btn.addEventListener("click", () => {
       const wasActive = btn.classList.contains("active");
-      document.querySelectorAll(".spot.active").forEach((s) => s.classList.remove("active"));
+      document.querySelectorAll(".spot.active").forEach((s) => {
+        s.classList.remove("active");
+        const c = s.querySelector(".card");
+        if (c) c.classList.remove("wallet-open");
+      });
       if (!wasActive) btn.classList.add("active");
     });
 
     function positionCard() {
-      card.classList.remove("measuring");
       btn.classList.remove("flip-start", "flip-end");
       const r = card.getBoundingClientRect();
       if (r.left < 8) btn.classList.add("flip-start");
@@ -596,7 +778,11 @@
 
   document.addEventListener("click", (e) => {
     if (!e.target.closest(".spot")) {
-      document.querySelectorAll(".spot.active").forEach((s) => s.classList.remove("active"));
+      document.querySelectorAll(".spot.active").forEach((s) => {
+        s.classList.remove("active");
+        const c = s.querySelector(".card");
+        if (c) c.classList.remove("wallet-open");
+      });
     }
   });
 </script>
