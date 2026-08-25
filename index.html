@@ -21,6 +21,14 @@
 
   Beggars without an entry there just show "wallet coming soon" — nothing
   breaks if you leave some blank for now.
+
+  NAMING A WHALE: if you figure out who a wallet on the whale board
+  belongs to, find WHALE_PROFILES near WALLETS and add a line mapping
+  that wallet address to their X profile URL:
+
+    "8dUG8tok...their wallet address...": "https://x.com/their_handle",
+
+  Whales without an entry there just show "Anonymous".
 -->
 
 <style>
@@ -462,7 +470,8 @@
     max-width: 1180px;
     display: flex;
     justify-content: center;
-    gap: 22px;
+    align-items: center;
+    gap: 14px;
     flex-wrap: wrap;
     font-family: var(--font-mono);
     font-size: 0.74rem;
@@ -475,6 +484,15 @@
     border-bottom: 1px solid transparent;
   }
   .site-nav a:hover { border-bottom-color: var(--accent-2); }
+  .nav-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: var(--accent-2);
+    box-shadow: 0 0 4px var(--accent-2);
+    opacity: 0.7;
+    flex: none;
+  }
 
   /* ---- Proof of Begging cycle panel ---- */
   .cycle-panel {
@@ -664,6 +682,21 @@
     color: var(--ink);
     margin-top: 2px;
   }
+  .whale-profile {
+    display: block;
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    margin-top: 6px;
+  }
+  .whale-profile a {
+    color: var(--accent-2);
+    text-decoration: none;
+  }
+  .whale-profile a:hover { text-decoration: underline; }
+  .whale-profile.anon {
+    color: var(--ink-dim);
+    font-style: italic;
+  }
 
   .dist-list {
     display: grid;
@@ -690,8 +723,11 @@
 
 <nav class="site-nav">
   <a href="proof-of-begging.html">Proof of Begging</a>
+  <span class="nav-dot"></span>
   <a href="cycle-log.html">Cycle Log</a>
+  <span class="nav-dot"></span>
   <a href="https://x.com/YOUR_HANDLE" target="_blank" rel="noopener">X</a>
+  <span class="nav-dot"></span>
   <a href="https://pump.fun/YOUR_COIN" target="_blank" rel="noopener">Pump.fun</a>
 </nav>
 
@@ -768,7 +804,14 @@
     aloo2evil: "J1Qio9VYcZ8ayvzwadcDYUtj1Jqk6iU8snn6tdSdod9",
     Alex0757: "Es7myoFDbRtzeWpb57M1HskkYg3RtuNcegBZAHKp6Ray",
     chloecadence: "6QPR7JJtPB2VrHtgHPKsEKn8ARqcu7NqioDRqqPT14oA",
-    
+
+  };
+
+  // optional: if you identify a whale on the board, map their wallet
+  // address to their X profile URL here. leave it out and their card
+  // just shows "Anonymous".
+  const WHALE_PROFILES = {
+    // "their solana wallet address": "https://x.com/their_handle",
   };
   // ------------------------------------------------------
 
@@ -1197,11 +1240,16 @@
         canvas.width = 64;
         canvas.height = 44;
         card.appendChild(canvas);
-        card.innerHTML += `
+        const profileUrl = WHALE_PROFILES[w.address];
+        const profileHtml = profileUrl
+          ? `<div class="whale-profile"><a href="${profileUrl}" target="_blank" rel="noopener">view X profile &#8599;</a></div>`
+          : `<div class="whale-profile anon">Anonymous</div>`;
+        card.insertAdjacentHTML("beforeend", `
           <div class="whale-rank">#${w.rank}</div>
           <a class="whale-addr" href="${SOLSCAN_ADDR(w.address)}" target="_blank" rel="noopener">${truncateWallet(w.address)}</a>
           <div class="whale-amount">${fmtSol(w.totalSol)}</div>
-        `;
+          ${profileHtml}
+        `);
         grid.appendChild(card);
         drawWhale(canvas.getContext("2d"), paletteForWhale(i));
       });
@@ -1218,8 +1266,12 @@
     try {
       const res = await fetch("./data/cycles.json", { cache: "no-store" });
       const cycles = await res.json();
-      if (!Array.isArray(cycles) || cycles.length === 0) { empty.hidden = false; return; }
-      const last = cycles[cycles.length - 1];
+      // excludeFromRewards lets a cycle stay in the Cycle Log's full history
+      // while being skipped here, useful for test runs that shouldn't be
+      // shown off as a real payout.
+      const eligible = Array.isArray(cycles) ? cycles.filter((c) => !c.excludeFromRewards) : [];
+      if (eligible.length === 0) { empty.hidden = false; return; }
+      const last = eligible[eligible.length - 1];
       const ok = (last.distribution || []).filter((d) => d.ok);
       if (ok.length === 0) { empty.hidden = false; return; }
       empty.hidden = true;
