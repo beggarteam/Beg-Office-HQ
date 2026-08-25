@@ -7,8 +7,8 @@
     "endedAt": "2026-08-25T18:41:24.729Z",
     "treasuryAtEndSol": 0.207847606,
     "burnAmountSol": 0.125857896,
-    "burnTxSignature": "null",
-    "excludeFromRewards": true
+    "burnTxSignature": null,
+    "excludeFromRewards": true,
     "distributedAmountSol": 0.061989708,
     "perBeggarSol": 0.015497427,
     "distribution": [
