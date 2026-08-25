@@ -1,4 +1,29 @@
 {
-  "updatedAt": null,
-  "entries": []
+  "updatedAt": "2026-08-25T17:29:17.273Z",
+  "entries": [
+    {
+      "handle": "beggarsceo",
+      "wallet": "EWEzfMttH3BrfffxVbJNk169ZULiFsMRwi6qHyTkZuK9",
+      "solReceived": 0,
+      "rank": 1
+    },
+    {
+      "handle": "aloo2evil",
+      "wallet": "J1Qio9VYcZ8ayvzwadcDYUtj1Jqk6iU8snn6tdSdod9",
+      "solReceived": 0,
+      "rank": 2
+    },
+    {
+      "handle": "Alex0757",
+      "wallet": "Es7myoFDbRtzeWpb57M1HskkYg3RtuNcegBZAHKp6Ray",
+      "solReceived": 0,
+      "rank": 3
+    },
+    {
+      "handle": "chloecadence",
+      "wallet": "6QPR7JJtPB2VrHtgHPKsEKn8ARqcu7NqioDRqqPT14oA",
+      "solReceived": 0,
+      "rank": 4
+    }
+  ]
 }
