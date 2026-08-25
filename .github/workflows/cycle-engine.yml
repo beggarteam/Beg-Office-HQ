@@ -1,0 +1,45 @@
+name: Whale scan + cycle engine
+
+on:
+  schedule:
+    - cron: "*/5 * * * *" # every 5 minutes (GitHub may delay this slightly under load)
+  workflow_dispatch: {}
+  push:
+    paths:
+      - "data/cycle.json" # run right away when you start/end a cycle by hand
+
+permissions:
+  contents: write
+
+concurrency:
+  group: cycle-engine
+  cancel-in-progress: false
+
+jobs:
+  run:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+
+      - name: Scan for whale donations
+        env:
+          HELIUS_API_KEY: ${{ secrets.HELIUS_API_KEY }}
+        run: node scripts/update-whales.mjs
+
+      - name: Check cycle timer / run payout if ended
+        env:
+          HELIUS_API_KEY: ${{ secrets.HELIUS_API_KEY }}
+          TREASURY_PRIVATE_KEY: ${{ secrets.TREASURY_PRIVATE_KEY }}
+        run: node scripts/run-cycle-check.mjs
+
+      - name: Commit if changed
+        run: |
+          git config user.name "beg-office-bot"
+          git config user.email "actions@github.com"
+          git add data/whales.json data/whale-state.json data/cycle.json data/cycles.json
+          git diff --cached --quiet || git commit -m "Update whale board / cycle state [skip ci]"
+          git push
