@@ -530,6 +530,76 @@
     border-top: 1px dashed var(--card-border);
   }
 
+  /* ---- treasury donate card, glowing ---- */
+  .treasury-cta {
+    width: 100%;
+    max-width: 1180px;
+    background: var(--card);
+    border: 2px solid var(--accent-2);
+    border-radius: 14px;
+    padding: clamp(16px, 3vw, 26px);
+    margin-bottom: 26px;
+    text-align: center;
+    animation: treasuryPulse 2.6s ease-in-out infinite;
+  }
+
+  @keyframes treasuryPulse {
+    0%, 100% { box-shadow: 0 0 16px 1px rgba(127, 227, 212, 0.35), 0 14px 34px var(--shadow); }
+    50%      { box-shadow: 0 0 32px 6px rgba(127, 227, 212, 0.7), 0 14px 34px var(--shadow); }
+  }
+
+  .treasury-label {
+    font-family: var(--font-display);
+    font-size: clamp(0.78rem, 1.6vw, 0.98rem);
+    letter-spacing: 0.06em;
+    color: var(--accent);
+    text-shadow: 2px 2px 0 var(--shadow);
+    margin-bottom: 14px;
+  }
+
+  .treasury-addr-row {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 12px;
+  }
+
+  .treasury-addr {
+    font-family: var(--font-mono);
+    font-size: clamp(0.72rem, 1.8vw, 0.92rem);
+    color: var(--ink);
+    background: rgba(0, 0, 0, 0.25);
+    border-radius: 6px;
+    padding: 8px 12px;
+    letter-spacing: 0.01em;
+    word-break: break-all;
+  }
+
+  .treasury-copy {
+    font-family: var(--font-mono);
+    font-size: 0.76rem;
+    font-weight: 700;
+    color: var(--bg-deep);
+    background: var(--accent-2);
+    border: none;
+    border-radius: 6px;
+    padding: 8px 14px;
+    cursor: pointer;
+    white-space: nowrap;
+    flex: none;
+  }
+  .treasury-copy:hover { filter: brightness(1.08); }
+  .treasury-copy:active { transform: scale(0.96); }
+
+  .treasury-note {
+    font-family: var(--font-body);
+    font-size: 0.86rem;
+    color: var(--ink-dim);
+    margin: 0;
+  }
+
   /* ---- whale board + distribution proof ---- */
   .section-title {
     font-family: var(--font-display);
@@ -647,6 +717,15 @@
     <div class="cycle-value mono" id="cycle-timer">-</div>
   </div>
   <div class="cycle-status" id="cycle-status" hidden></div>
+</section>
+
+<section class="treasury-cta">
+  <div class="treasury-label">PROOF OF BEGGING TREASURY</div>
+  <div class="treasury-addr-row">
+    <span class="treasury-addr" id="treasury-addr">8dUG8tokCbc2jPaXooZWHrcJpGUxuWVRDWmMYg3Ls4Ee</span>
+    <button type="button" class="treasury-copy" id="treasury-copy-btn">Copy</button>
+  </div>
+  <p class="treasury-note">Send funds here to participate in the Proof of Begging cycle.</p>
 </section>
 
 <div class="cabinet">
@@ -999,6 +1078,35 @@
   const SOLSCAN_TX = (sig) => `https://solscan.io/tx/${sig}`;
   const SOLSCAN_ADDR = (addr) => `https://solscan.io/account/${addr}`;
   const fmtSol = (n) => (typeof n === "number" ? n : 0).toLocaleString(undefined, { maximumFractionDigits: 3 }) + " SOL";
+
+  // ---- treasury address copy button ----
+  function copyToClipboard(text, onDone) {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      navigator.clipboard.writeText(text).then(onDone).catch(() => legacyCopy(text, onDone));
+    } else {
+      legacyCopy(text, onDone);
+    }
+  }
+  function legacyCopy(text, onDone) {
+    const ta = document.createElement("textarea");
+    ta.value = text;
+    ta.style.position = "fixed";
+    ta.style.opacity = "0";
+    document.body.appendChild(ta);
+    ta.select();
+    try { document.execCommand("copy"); onDone(); } catch (err) { /* ignore */ }
+    document.body.removeChild(ta);
+  }
+  const treasuryCopyBtn = document.getElementById("treasury-copy-btn");
+  if (treasuryCopyBtn) {
+    treasuryCopyBtn.addEventListener("click", () => {
+      const addr = document.getElementById("treasury-addr").textContent.trim();
+      copyToClipboard(addr, () => {
+        treasuryCopyBtn.textContent = "Copied!";
+        setTimeout(() => { treasuryCopyBtn.textContent = "Copy"; }, 1500);
+      });
+    });
+  }
 
   // ---- pixel whale icon, same procedural approach as the beggar cats ----
   const WHALE_PALETTE = [
