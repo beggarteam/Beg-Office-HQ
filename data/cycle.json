@@ -2,7 +2,7 @@
   "cycleId": "test-1",
   "ticker": "$TEST",
   "ca": "TEST",
-  "startedAt": "2026-08-25T18:25:00Z",
+  "startedAt": "2026-08-25T18:28:00Z",
   "endsAt": "2026-08-25T18:35:00Z",
   "status": "active"
 }
