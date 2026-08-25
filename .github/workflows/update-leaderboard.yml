@@ -1,0 +1,40 @@
+name: Update SOL leaderboard
+
+on:
+  schedule:
+    # Every 6 hours
+    - cron: "0 */6 * * *"
+  workflow_dispatch: {} # lets you trigger a manual run from the Actions tab
+  push:
+    paths:
+      - "index.html" # re-run right away when you add/change a wallet
+
+permissions:
+  contents: write
+
+concurrency:
+  group: leaderboard
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Compute lifetime SOL received per beggar
+        env:
+          HELIUS_API_KEY: ${{ secrets.HELIUS_API_KEY }}
+        run: node scripts/update-leaderboard.mjs
+
+      - name: Commit updated leaderboard data
+        run: |
+          git config user.name "beg-office-bot"
+          git config user.email "actions@github.com"
+          git add data/leaderboard.json data/leaderboard-state.json
+          git diff --cached --quiet || git commit -m "Update leaderboard [skip ci]"
+          git push
