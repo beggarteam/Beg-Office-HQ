@@ -1,0 +1,34 @@
+name: Update treasury balance
+
+on:
+  schedule:
+    - cron: "*/30 * * * *" # every 30 minutes
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: treasury
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+      - name: Update treasury.json
+        env:
+          HELIUS_API_KEY: ${{ secrets.HELIUS_API_KEY }}
+        run: node scripts/update-treasury.mjs
+      - name: Commit if changed
+        run: |
+          git config user.name "beg-office-bot"
+          git config user.email "actions@github.com"
+          git add data/treasury.json
+          git diff --cached --quiet || git commit -m "Update treasury balance [skip ci]"
+          git push
