@@ -1,8 +1,8 @@
 {
-  "treasuryWallet": "PUT_TREASURY_WALLET_ADDRESS_HERE",
+  "treasuryWallet": "8dUG8tokCbc2jPaXooZWHrcJpGUxuWVRDWmMYg3Ls4Ee",
   "burnPercent": 67,
   "distributePercent": 33,
-  "whaleThresholdSol": 5,
+  "whaleThresholdSol": 0.1,
   "whaleBoardSize": 10,
   "treasuryReserveSol": 0.02
 }
