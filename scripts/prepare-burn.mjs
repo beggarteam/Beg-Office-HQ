@@ -63,8 +63,14 @@ async function main() {
   }
  
   const existing = await readJson("pending-burn.json", null);
-  if (existing && existing.cycleId === target.cycleId && existing.status === "executed") {
-    console.log(`Cycle "${target.cycleId}" already shows executed in pending-burn.json.`);
+  // Once a swap has actually happened for this cycle (buyTxSignature set,
+  // regardless of exact status), treasury funds have already moved —
+  // never re-quote or overwrite that state, or execute-burn.mjs could be
+  // fooled into buying a second time on its next approval run.
+  if (existing && existing.cycleId === target.cycleId && (existing.status === "executed" || existing.buyTxSignature)) {
+    console.log(
+      `Cycle "${target.cycleId}" already has a swap recorded (status: ${existing.status}) — leaving pending-burn.json alone.`
+    );
     return;
   }
  
