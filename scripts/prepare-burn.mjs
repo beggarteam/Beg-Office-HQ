@@ -51,10 +51,14 @@ async function main() {
     return;
   }
  
-  // The most recent cycle that hasn't had its burn executed yet.
-  const target = [...cycles].reverse().find((c) => !c.burnTxSignature);
-  if (!target) {
-    console.log("Every recorded cycle already has a burn tx — nothing pending.");
+  // Only ever consider the single most recent cycle — never scan back
+  // through history. Scanning backward for "any cycle without a burn tx"
+  // would "resurrect" an old cycle that intentionally never gets burned
+  // (e.g. a test cycle marked excludeFromRewards) once the real latest
+  // cycle has already been burned and no new cycle has started yet.
+  const target = cycles[cycles.length - 1];
+  if (!target || target.burnTxSignature || target.excludeFromRewards) {
+    console.log("No un-burned cycle pending — nothing to prepare a burn for.");
     await writeFile(
       path.join(DATA_DIR, "pending-burn.json"),
       JSON.stringify({ status: "none" }, null, 2)
