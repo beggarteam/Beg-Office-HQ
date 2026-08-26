@@ -1,16 +1,13 @@
 {
-  "cycleId": "cycle-1",
-  "ticker": "$Pistacio",
-  "ca": "FZqdw6oSDCbHtKYxmhnfbi97SnyVy8jaYpdCoMrrjKa2",
-  "burnLamports": 160475102,
-  "burnAmountSol": 0.160475102,
+  "cycleId": "test-1",
+  "ticker": "$TEST",
+  "ca": "TEST",
+  "burnLamports": 125857896,
+  "burnAmountSol": 0.125857896,
   "slippageBps": 500,
-  "quotedAt": "2026-08-26T19:13:25.647Z",
-  "buyTxSignature": "uUBMAKaLhJqomuRBMiZwUcZxbLdtVwn7YBAFQUSJtv63b8QeKLXpnc9PshonzxBbTYKNit3jjeW7HYQTJTEMBKN",
-  "burnTxSignature": "4d5RmCTxxy9Hbi27Q8HE759DZmmsQa7bnedbjQz5ob9cieN2yjudZbjgW6HYvb931RLtEhsZ8cp3uYxMPRdLJ4B7",
-  "status": "executed",
-  "expectedOutAmount": 2240.485292,
-  "priceImpactPct": 0.16468455653376374,
-  "message": "Burn complete.",
-  "executedAt": "2026-08-26T19:41:36.660Z"
+  "quotedAt": "2026-08-26T19:52:19.485Z",
+  "buyTxSignature": null,
+  "burnTxSignature": null,
+  "status": "no-route",
+  "message": "Jupiter couldn't find a swap route for this CA. It may still be on a pump.fun bonding curve and not migrated to a DEX yet, or the CA is wrong. You'll need to buy + burn this one manually."
 }
