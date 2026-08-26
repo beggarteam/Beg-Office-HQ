@@ -7,7 +7,7 @@
 // Safe to re-run: if a previous attempt bought the coin but failed before
 // burning it, this picks up from the burn step instead of buying again.
 // If a burn already completed, it refuses to do anything.
-
+ 
 import { readFile, writeFile } from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
@@ -20,19 +20,19 @@ import {
 import bs58 from "bs58";
 import { LAMPORTS_PER_SOL } from "./lib/rpc.mjs";
 import { getQuote, getSwapTransaction, priceImpactPercent } from "./lib/jupiter.mjs";
-
+ 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const ROOT = path.resolve(__dirname, "..");
 const DATA_DIR = path.join(ROOT, "data");
-
+ 
 const API_KEY = process.env.HELIUS_API_KEY;
 const PRIVATE_KEY = process.env.TREASURY_PRIVATE_KEY;
 if (!API_KEY) { console.error("Missing HELIUS_API_KEY environment variable."); process.exit(1); }
 if (!PRIVATE_KEY) { console.error("Missing TREASURY_PRIVATE_KEY environment variable."); process.exit(1); }
-
+ 
 const RPC_URL = `https://mainnet.helius-rpc.com/?api-key=${API_KEY}`;
 const connection = new Connection(RPC_URL, "confirmed");
-
+ 
 async function readJson(file, fallback) {
   try {
     return JSON.parse(await readFile(path.join(DATA_DIR, file), "utf8"));
@@ -43,11 +43,11 @@ async function readJson(file, fallback) {
 async function writeJson(file, data) {
   await writeFile(path.join(DATA_DIR, file), JSON.stringify(data, null, 2));
 }
-
+ 
 async function main() {
   const config = await readJson("config.json", null);
   const pending = await readJson("pending-burn.json", null);
-
+ 
   if (!config) { console.error("Missing data/config.json."); process.exit(1); }
   if (!pending || !pending.cycleId) {
     console.error("No pending burn on file. Run \"prepare-burn\" first (it runs automatically every 5 min).");
@@ -64,16 +64,16 @@ async function main() {
     );
     process.exit(1);
   }
-
+ 
   const treasuryKeypair = Keypair.fromSecretKey(bs58.decode(PRIVATE_KEY));
   if (treasuryKeypair.publicKey.toBase58() !== config.treasuryWallet) {
     console.error("TREASURY_PRIVATE_KEY does not match config.json's treasuryWallet — refusing to send funds.");
     process.exit(1);
   }
-
+ 
   const mint = new PublicKey(pending.ca);
   let buyTxSignature = pending.buyTxSignature || null;
-
+ 
   if (pending.status === "awaiting-approval") {
     const maxImpactPct = config.burnMaxPriceImpactPct ?? 15;
     console.log(`Re-checking price for cycle "${pending.cycleId}" right before spending anything...`);
@@ -92,7 +92,7 @@ async function main() {
       process.exit(1);
     }
     console.log(`Fresh quote OK (${impactPct.toFixed(2)}% impact). Building swap transaction...`);
-
+ 
     const { swapTransaction, lastValidBlockHeight } = await getSwapTransaction({
       quote: freshQuote,
       userPublicKey: treasuryKeypair.publicKey.toBase58(),
@@ -101,13 +101,37 @@ async function main() {
     tx.sign([treasuryKeypair]);
     const signature = await connection.sendRawTransaction(tx.serialize(), { maxRetries: 3 });
     console.log(`Swap sent: ${signature} — confirming...`);
-    await connection.confirmTransaction(
-      { signature, blockhash: tx.message.recentBlockhash, lastValidBlockHeight },
-      "confirmed"
-    );
+    let confirmed = false;
+    try {
+      await connection.confirmTransaction(
+        { signature, blockhash: tx.message.recentBlockhash, lastValidBlockHeight },
+        "confirmed"
+      );
+      confirmed = true;
+    } catch (e) {
+      // The client-side wait can time out (e.g. block-height-exceeded)
+      // even when the transaction actually landed — the RPC just didn't
+      // tell us in time. Ask the chain directly before assuming failure.
+      console.warn(`confirmTransaction didn't resolve cleanly (${e.message}). Checking the real on-chain status...`);
+    }
+    if (!confirmed) {
+      const status = await connection.getSignatureStatus(signature, { searchTransactionHistory: true });
+      const landed =
+        status?.value &&
+        !status.value.err &&
+        (status.value.confirmationStatus === "confirmed" || status.value.confirmationStatus === "finalized");
+      if (!landed) {
+        console.error(
+          `Swap transaction ${signature} did not land (status: ${JSON.stringify(status?.value)}). ` +
+          "Nothing was bought — safe to re-run this workflow to try again."
+        );
+        process.exit(1);
+      }
+      console.log(`Swap actually confirmed on-chain (${signature}) despite the client-side wait timing out. Continuing.`);
+    }
     console.log("Swap confirmed. Treasury now holds the target coin.");
     buyTxSignature = signature;
-
+ 
     // Checkpoint immediately so a crash before the burn doesn't cause a
     // re-run to buy a second time.
     await writeJson("pending-burn.json", {
@@ -119,16 +143,19 @@ async function main() {
   } else {
     console.log(`Resuming: swap already done in a prior run (${buyTxSignature}). Skipping straight to the burn.`);
   }
-
+ 
   const treasuryAta = await getAssociatedTokenAddress(mint, treasuryKeypair.publicKey);
   const account = await getAccount(connection, treasuryAta);
   const burnAmount = account.amount; // burn the full balance the treasury is holding of this mint
   if (burnAmount <= 0n) {
-    console.error("Treasury's balance of this token is 0 — nothing to burn. Check the swap actually landed.");
+    console.error(
+      "Treasury's balance of this token is 0 — nothing to burn. Either the swap hasn't landed yet, " +
+      "or a prior run already burned it and pending-burn.json is out of date — check cycles.json and Solscan."
+    );
     process.exit(1);
   }
   console.log(`Burning ${burnAmount.toString()} base units of ${pending.ticker}...`);
-
+ 
   const burnTx = new Transaction().add(
     createBurnInstruction(treasuryAta, mint, treasuryKeypair.publicKey, burnAmount)
   );
@@ -138,9 +165,30 @@ async function main() {
   burnTx.sign(treasuryKeypair);
   const burnSignature = await connection.sendRawTransaction(burnTx.serialize());
   console.log(`Burn sent: ${burnSignature} — confirming...`);
-  await connection.confirmTransaction({ signature: burnSignature, blockhash, lastValidBlockHeight }, "confirmed");
+  let burnConfirmed = false;
+  try {
+    await connection.confirmTransaction({ signature: burnSignature, blockhash, lastValidBlockHeight }, "confirmed");
+    burnConfirmed = true;
+  } catch (e) {
+    console.warn(`confirmTransaction didn't resolve cleanly (${e.message}). Checking the real on-chain status...`);
+  }
+  if (!burnConfirmed) {
+    const status = await connection.getSignatureStatus(burnSignature, { searchTransactionHistory: true });
+    const landed =
+      status?.value &&
+      !status.value.err &&
+      (status.value.confirmationStatus === "confirmed" || status.value.confirmationStatus === "finalized");
+    if (!landed) {
+      console.error(
+        `Burn transaction ${burnSignature} did not land (status: ${JSON.stringify(status?.value)}). ` +
+        "The coin is still sitting in the treasury, unburned — safe to re-run this workflow, it'll pick up at the burn step."
+      );
+      process.exit(1);
+    }
+    console.log(`Burn actually confirmed on-chain (${burnSignature}) despite the client-side wait timing out. Continuing.`);
+  }
   console.log("Burn confirmed. Coins are gone for good.");
-
+ 
   const cycles = await readJson("cycles.json", []);
   const idx = cycles.findIndex((c) => c.cycleId === pending.cycleId);
   if (idx !== -1) {
@@ -150,7 +198,7 @@ async function main() {
   } else {
     console.warn(`Couldn't find cycle "${pending.cycleId}" in cycles.json to record the burn tx — add it by hand.`);
   }
-
+ 
   await writeJson("pending-burn.json", {
     ...pending,
     status: "executed",
@@ -159,11 +207,12 @@ async function main() {
     executedAt: new Date().toISOString(),
     message: "Burn complete.",
   });
-
+ 
   console.log(`Done. Buy: ${buyTxSignature} | Burn: ${burnSignature}`);
 }
-
+ 
 main().catch((e) => {
   console.error(e);
   process.exit(1);
 });
+ 
