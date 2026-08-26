@@ -1,10 +1,6 @@
 {
-  "cycleId": "test-1",
+  "cycleId": "cycle-1",
   "lastSignature": "2VU3RJ9xqzqGCFUBiYvcQv7gHSnrmbmQjqWnoCrgiF5X3T1vAoTC5HxAeGU3ZyZdXAANKyht41eYAJtT2v4DtRdb",
-  "totals": {
-    "6UwX4LcB5Zbmn93aq8pkthXjADnT5SAomAsNvoqKGRgw": "207847606"
-  },
-  "qualified": [
-    "6UwX4LcB5Zbmn93aq8pkthXjADnT5SAomAsNvoqKGRgw"
-  ]
+  "totals": {},
+  "qualified": []
 }
