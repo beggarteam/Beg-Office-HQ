@@ -5,6 +5,7 @@
   "description": "Scheduled scripts that run the leaderboard, treasury tracker, whale tracker, and Proof of Begging cycle engine for beg-office.org",
   "dependencies": {
     "@solana/web3.js": "^1.95.0",
+    "@solana/spl-token": "^0.4.9",
     "bs58": "^5.0.0"
   }
 }
