@@ -206,6 +206,9 @@
     const el = document.createElement("div");
     el.className = "cycle-card";
 
+    const buyLink = cycle.buyTxSignature
+      ? `<a href="${solscanTx(cycle.buyTxSignature)}" target="_blank" rel="noopener">view buy tx ↗</a>`
+      : "";
     const burnLinks = cycle.burnTxSignature
       ? `<a href="${solscanTx(cycle.burnTxSignature)}" target="_blank" rel="noopener">view burn tx ↗</a>`
       : `<span class="pending">burn tx pending</span>`;
@@ -246,7 +249,7 @@
           <div class="value">${fmtSol(cycle.perBeggarSol)}</div>
         </div>
       </div>
-      <div class="cycle-links">${burnLinks}${distLinks}</div>
+      <div class="cycle-links">${buyLink}${burnLinks}${distLinks}</div>
       ${whalesLine}
     `;
     return el;
