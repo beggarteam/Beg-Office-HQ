@@ -4,5 +4,7 @@
   "distributePercent": 33,
   "whaleThresholdSol": 0.1,
   "whaleBoardSize": 10,
-  "treasuryReserveSol": 0.02
+  "treasuryReserveSol": 0.02,
+  "burnSlippageBps": 500,
+  "burnMaxPriceImpactPct": 15
 }
