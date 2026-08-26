@@ -2,7 +2,8 @@
 
 You chose a dedicated hot wallet: a wallet used only for Proof of Begging,
 whose private key is stored as a GitHub secret so the automation can sign
-the end-of-cycle payout transactions without you doing anything by hand.
+the end-of-cycle payout transactions (and the burn swap) without you doing
+anything by hand.
 
 Treat this key the way you'd treat cash in a register, not a savings
 account: enough to run the cycle, nothing more, and never reused anywhere
@@ -43,7 +44,8 @@ secret.
 
 This secret is encrypted at rest and is only ever decrypted inside a
 workflow run, it's never exposed in logs or visible to anyone browsing the
-repo, including you, once saved.
+repo, including you, once saved. This same secret is used both for the
+end-of-cycle payout and for the buy + burn step below.
 
 ## 4. Fund it, modestly
 
@@ -77,21 +79,24 @@ automatically.
 When `endsAt` passes, `cycle-engine.yml` (running every 5 minutes) notices,
 pays out 33% equally to every wallet currently listed in `WALLETS` in
 `index.html`, logs the cycle to `data/cycles.json`, and sets `status` to
-`"distributed"`. The 67% earmarked for the burn stays in the treasury
-wallet, untouched, since that part is still manual.
+`"distributed"`.
 
-## 6. Doing the manual buy + burn, and recording it
+## 6. The buy + burn — approve, don't do it by hand
 
-Once you've bought and burned the day's coin yourself, open
-`data/cycles.json`, find that cycle's entry (it'll be the last one, with
-`"burnTxSignature": null`), and fill in the transaction signature:
+The other 67% is no longer a manual buy-and-burn. Right after the payout,
+`cycle-engine.yml` also runs `prepare-burn.mjs`, which gets a live Jupiter
+quote for swapping that 67% of SOL into the day's coin and writes it to
+`data/pending-burn.json` — this step never touches the private key and
+never moves funds, it only prices the trade. Once it's ready, a banner
+appears on the site itself showing the quoted amount and price impact.
 
-```json
-"burnTxSignature": "your transaction signature here"
-```
-
-Commit it. The Cycle Log page will pick it up and show a working link to
-the burn transaction.
+When you're happy with the numbers: repo -> Actions tab -> "Execute burn
+(manual approval)" -> Run workflow. That one click is the entire approval —
+it re-checks the price, buys the coin, burns it, and writes both
+transaction signatures into that cycle's entry in `data/cycles.json`
+automatically. Nothing to paste in by hand. Full details, including what
+each `pending-burn.json` status means and how to recover from a failed
+run, are in `BURN_SETUP.md`.
 
 Then, whenever you're ready for the next cycle, just edit `data/cycle.json`
 again with the new coin and a fresh `endsAt`.
