@@ -6,10 +6,10 @@
   "burnAmountSol": 0.160475102,
   "slippageBps": 500,
   "quotedAt": "2026-08-26T19:13:25.647Z",
-  "buyTxSignature": null,
+  "buyTxSignature": "uUBMAKaLhJqomuRBMiZwUcZxbLdtVwn7YBAFQUSJtv63b8QeKLXpnc9PshonzxBbTYKNit3jjeW7HYQTJTEMBKN",
   "burnTxSignature": null,
-  "status": "awaiting-approval",
+  "status": "swap-done-burn-pending",
   "expectedOutAmount": 2240.485292,
   "priceImpactPct": 0.16468455653376374,
-  "message": "Ready to burn. Review the numbers, then run \"Execute burn (manual approval)\" from the Actions tab."
+  "message": "Swap done, burn not yet confirmed. Re-run this workflow to finish the burn."
 }
