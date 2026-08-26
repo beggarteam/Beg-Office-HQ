@@ -57,7 +57,7 @@
     "endedAt": "2026-08-26T19:01:46.733Z",
     "treasuryAtEndSol": 0.259515079,
     "burnAmountSol": 0.160475102,
-    "burnTxSignature": null,
+    "burnTxSignature": "4d5RmCTxxy9Hbi27Q8HE759DZmmsQa7bnedbjQz5ob9cieN2yjudZbjgW6HYvb931RLtEhsZ8cp3uYxMPRdLJ4B7",
     "distributedAmountSol": 0.079039976,
     "perBeggarSol": 0.019759994,
     "distribution": [
@@ -96,6 +96,7 @@
         "totalSol": 0.113677181,
         "rank": 1
       }
-    ]
+    ],
+    "buyTxSignature": "uUBMAKaLhJqomuRBMiZwUcZxbLdtVwn7YBAFQUSJtv63b8QeKLXpnc9PshonzxBbTYKNit3jjeW7HYQTJTEMBKN"
   }
 ]

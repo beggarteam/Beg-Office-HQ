@@ -7,9 +7,10 @@
   "slippageBps": 500,
   "quotedAt": "2026-08-26T19:13:25.647Z",
   "buyTxSignature": "uUBMAKaLhJqomuRBMiZwUcZxbLdtVwn7YBAFQUSJtv63b8QeKLXpnc9PshonzxBbTYKNit3jjeW7HYQTJTEMBKN",
-  "burnTxSignature": null,
-  "status": "swap-done-burn-pending",
+  "burnTxSignature": "4d5RmCTxxy9Hbi27Q8HE759DZmmsQa7bnedbjQz5ob9cieN2yjudZbjgW6HYvb931RLtEhsZ8cp3uYxMPRdLJ4B7",
+  "status": "executed",
   "expectedOutAmount": 2240.485292,
   "priceImpactPct": 0.16468455653376374,
-  "message": "Swap done, burn not yet confirmed. Re-run this workflow to finish the burn."
+  "message": "Burn complete.",
+  "executedAt": "2026-08-26T19:41:36.660Z"
 }
