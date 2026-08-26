@@ -1,13 +1,3 @@
 {
-  "cycleId": "test-1",
-  "ticker": "$TEST",
-  "ca": "TEST",
-  "burnLamports": 125857896,
-  "burnAmountSol": 0.125857896,
-  "slippageBps": 500,
-  "quotedAt": "2026-08-26T19:52:19.485Z",
-  "buyTxSignature": null,
-  "burnTxSignature": null,
-  "status": "no-route",
-  "message": "Jupiter couldn't find a swap route for this CA. It may still be on a pump.fun bonding curve and not migrated to a DEX yet, or the CA is wrong. You'll need to buy + burn this one manually."
+  "status": "none"
 }
