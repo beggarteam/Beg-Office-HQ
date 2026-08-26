@@ -11,8 +11,16 @@
 
     "https://x.com/some_handle",
 
-  The desk, the handle, the color, the header count, and the ticker all
-  update automatically. No art tools, no image editing, no size limit.
+  The desk, the handle, the header count, and the ticker all update
+  automatically. No art tools, no image editing, no size limit.
+
+  EACH CAT'S LOOK is generated automatically from its own handle (see
+  getTraits() near the bottom) — fur color, ear shape, marking, and an
+  optional accessory (glasses/headphones/bandana) are all hashed from the
+  handle text itself, not from its position in this list. That means two
+  things: looks stop repeating even past hundreds of beggars, and a given
+  handle keeps the exact same cat forever no matter who's added, removed,
+  or reordered around them. Nothing to configure here — just add the URL.
 
   ADDING A WALLET: find the WALLETS object just below PROFILES and add a
   line mapping that beggar's X handle (no @) to their Solana address:
@@ -24,7 +32,7 @@
 
   NAMING A WHALE: if you figure out who a wallet on the whale board
   belongs to, find WHALE_PROFILES near WALLETS and add a line mapping
-  that wallet address to their X  URL:
+  that wallet address to their X profile URL:
 
     "8dUG8tok...their wallet address...": "https://x.com/their_handle",
 
@@ -246,6 +254,22 @@
   }
   .spot:hover .glow, .spot:focus-visible .glow, .spot.active .glow { opacity: 0.3; }
 
+  /* ---- find-a-beggar: search-dim/search-hit toggled by the search box,
+     deep-link-flash toggled once on page load when a #handle is in the URL ---- */
+  .spot { transition: opacity 0.2s ease; }
+  .spot.search-dim { opacity: 0.22; }
+  .spot.search-hit .tile-clip {
+    box-shadow: 0 0 0 3px var(--accent-2), inset 0 0 0 2px #0a1e1c, inset 0 0 16px rgba(0,0,0,0.5);
+  }
+  .spot.search-hit .glow { opacity: 0.35; }
+
+  @keyframes deepLinkPulse {
+    0% { box-shadow: 0 0 0 0 rgba(127, 227, 212, 0.9); }
+    70% { box-shadow: 0 0 0 16px rgba(127, 227, 212, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(127, 227, 212, 0); }
+  }
+  .spot.deep-link-flash .tile-clip { animation: deepLinkPulse 0.9s ease-out 2; }
+
   /* ---- tooltip card ---- */
   .card {
     position: absolute;
@@ -403,6 +427,69 @@
     font-size: 0.72rem;
     color: var(--ink-dim);
     letter-spacing: 0.02em;
+    text-align: center;
+  }
+
+  /* ---- find-a-beggar search box, sits above the cabinet ---- */
+  .finder {
+    width: 100%;
+    max-width: 1180px;
+    margin: 0 0 16px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  .finder-box { position: relative; width: 100%; max-width: 360px; }
+  .finder-icon {
+    position: absolute;
+    left: 13px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 14px;
+    height: 14px;
+    color: var(--ink-dim);
+    pointer-events: none;
+  }
+  #beggar-search {
+    width: 100%;
+    font-family: var(--font-mono);
+    font-size: 0.82rem;
+    color: var(--ink);
+    background: var(--bg-deep);
+    border: 1px solid var(--card-border);
+    border-radius: 20px;
+    padding: 9px 34px;
+    outline: none;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  #beggar-search::placeholder { color: var(--ink-dim); opacity: 0.8; }
+  #beggar-search:focus { border-color: var(--accent-2); box-shadow: 0 0 0 3px rgba(127, 227, 212, 0.18); }
+  .finder-clear {
+    position: absolute;
+    right: 7px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border: none;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.1);
+    color: var(--ink);
+    font-size: 0.9rem;
+    line-height: 1;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .finder-clear:hover { background: rgba(255, 255, 255, 0.18); }
+  .finder-status {
+    font-family: var(--font-mono);
+    font-size: 0.7rem;
+    color: var(--ink-dim);
+    letter-spacing: 0.02em;
+    min-height: 1em;
     text-align: center;
   }
 
@@ -820,12 +907,21 @@
   <p class="treasury-note">Send funds here to participate in the Proof of Begging cycle.</p>
 </section>
 
+<div class="finder">
+  <div class="finder-box">
+    <svg class="finder-icon" viewBox="0 0 16 16" aria-hidden="true"><path d="M7 1a6 6 0 104.472 10.025l3.251 3.252 1.06-1.06-3.251-3.252A6 6 0 007 1zM2.5 7a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0z" fill="currentColor"/></svg>
+    <input type="text" id="beggar-search" placeholder="find a beggar by handle&hellip;" autocomplete="off" spellcheck="false" aria-label="Search beggars by X handle">
+    <button type="button" id="beggar-search-clear" class="finder-clear" hidden aria-label="Clear search">&times;</button>
+  </div>
+  <div class="finder-status" id="search-status" aria-live="polite"></div>
+</div>
+
 <div class="cabinet">
   <span class="screw bl"></span><span class="screw br"></span>
   <div class="office" id="office"></div>
 </div>
 
-<p class="hint">hover / tap a desk &middot; each one is a real beggar on X</p>
+<p class="hint">hover / tap a desk &middot; search above to find yours &middot; hit "Link" on your card to share a direct URL to your desk</p>
 
 <div class="ticker">
   <div class="ticker-track" id="ticker-track"></div>
@@ -878,18 +974,67 @@
   };
   // ------------------------------------------------------
 
-  const PALETTE = [
-    { base: "#e8934a", shade: "#c97230", ear: "#f7c4b2", led: "#56e2ec" },
-    { base: "#2a2a30", shade: "#3e3e46", ear: "#785a60", led: "#ec5cd2" },
-    { base: "#f5efe0", shade: "#d6cdb6", ear: "#ecb4b0", led: "#ffbe5a" },
-    { base: "#8c97a8", shade: "#6e7a8c", ear: "#d2c2c2", led: "#78ec8c" },
-    { base: "#f4ecda", shade: "#db8c3f", ear: "#e8b0a8", led: "#b08cff", patch2: "#483a2e" },
-    { base: "#23232a", shade: "#373740", ear: "#6e5a5a", led: "#ff7878", patch2: "#ebe6d7" },
-    { base: "#5e3f2d", shade: "#462e20", ear: "#c89678", led: "#ffd65a" },
-    { base: "#b09ea8", shade: "#92808c", ear: "#e1c8cd", led: "#8cffbe" },
-    { base: "#f7c48c", shade: "#d6a066", ear: "#ffdec8", led: "#ffff8c" },
-    { base: "#b0b6bc", shade: "#8c929a", ear: "#dccdcd", led: "#ff8cdc" },
-  ];
+  // ---- per-beggar look: every trait below (fur color, ear shape,
+  // marking, accessory) is derived by hashing the beggar's own X handle,
+  // not their position in PROFILES. Two upsides: with 200+ beggars the
+  // combinations don't visibly repeat, and a given handle keeps the same
+  // cat forever even as people are added/removed/reordered around them. ----
+  function hashHandle(str) {
+    let h = 2166136261 >>> 0;
+    for (let i = 0; i < str.length; i++) {
+      h ^= str.charCodeAt(i);
+      h = Math.imul(h, 16777619) >>> 0;
+    }
+    return h >>> 0;
+  }
+  function makeRng(seed) {
+    let s = seed >>> 0;
+    return function () {
+      s |= 0; s = (s + 0x6d2b79f5) | 0;
+      let t = Math.imul(s ^ (s >>> 15), 1 | s);
+      t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+      return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+    };
+  }
+  function weightedPick(rand, entries) {
+    const total = entries.reduce((sum, [, w]) => sum + w, 0);
+    let r = rand() * total;
+    for (const [value, w] of entries) {
+      if (r < w) return value;
+      r -= w;
+    }
+    return entries[entries.length - 1][0];
+  }
+  function hsl(h, s, l) { return `hsl(${Math.round(((h % 360) + 360) % 360)}, ${s}%, ${l}%)`; }
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+  const EAR_SHAPES = ["pointed", "round", "folded", "tufted"];
+  const MARKINGS = [["none", 40], ["patch", 15], ["stripe", 15], ["spot", 15], ["mask", 15]];
+  const ACCESSORIES = [["none", 45], ["glasses", 20], ["headphones", 20], ["bandana", 15]];
+
+  function getTraits(handle) {
+    const rand = makeRng(hashHandle(handle.replace("@", "").toLowerCase()));
+    const neutral = rand() < 0.18;
+    const hue = rand() * 360;
+    const sat = neutral ? 5 + rand() * 10 : 40 + rand() * 32;
+    const light = neutral ? 14 + rand() * 76 : 42 + rand() * 22;
+
+    const base = hsl(hue, sat, light);
+    const shade = hsl(hue, sat, clamp(light - 18, 8, 92));
+    const ear = hsl(hue, clamp(sat - 15, 8, 100), clamp(light + 22, 10, 94));
+    const ledHue = hue + 120 + rand() * 60;
+    const led = hsl(ledHue, 72 + rand() * 18, 62 + rand() * 14);
+    const accentHue = hue + 40 + rand() * 80;
+    const accent2 = hsl(accentHue, 45 + rand() * 30, light > 55 ? clamp(light - 32, 10, 90) : clamp(light + 32, 10, 92));
+
+    return {
+      base, shade, ear, led, accent2,
+      earShape: EAR_SHAPES[Math.floor(rand() * EAR_SHAPES.length)],
+      marking: weightedPick(rand, MARKINGS),
+      accessory: weightedPick(rand, ACCESSORIES),
+      tailSide: rand() < 0.5 ? 1 : -1,
+    };
+  }
 
   const BEG_LINES = [
     "spare a like for", "send good vibes to", "tip the jar for",
@@ -950,23 +1095,87 @@
     for (let x = 4; x < W; x += 16) ctx.fillRect(x, WALL_SPLIT + 2, 1, H - WALL_SPLIT - 2);
   }
 
+  // ---- ear shapes: 4 variants so silhouettes differ, not just color ----
+  function drawEars(ctx, shape, base, ear) {
+    if (shape === "round") {
+      ell(ctx, cx - 9.5, HEAD_CY - 12, cx - 2, HEAD_CY - 3, base);
+      ell(ctx, cx - 8, HEAD_CY - 10.5, cx - 3.5, HEAD_CY - 4.5, ear);
+      ell(ctx, cx + 2, HEAD_CY - 12, cx + 9.5, HEAD_CY - 3, base);
+      ell(ctx, cx + 3.5, HEAD_CY - 10.5, cx + 8, HEAD_CY - 4.5, ear);
+    } else if (shape === "folded") {
+      tri(ctx, cx - 9, HEAD_CY - 3, cx - 3, HEAD_CY - 8, cx - 1, HEAD_CY - 2, base);
+      tri(ctx, cx + 9, HEAD_CY - 3, cx + 3, HEAD_CY - 8, cx + 1, HEAD_CY - 2, base);
+    } else if (shape === "tufted") {
+      tri(ctx, cx - 8, HEAD_CY - 4, cx - 4, HEAD_CY - 12, cx - 1, HEAD_CY - 4, base);
+      tri(ctx, cx - 6, HEAD_CY - 5, cx - 4, HEAD_CY - 10, cx - 2, HEAD_CY - 5, ear);
+      ctx.fillStyle = ear; ctx.fillRect(cx - 5, HEAD_CY - 14, 2, 2);
+      tri(ctx, cx + 8, HEAD_CY - 4, cx + 4, HEAD_CY - 12, cx + 1, HEAD_CY - 4, base);
+      tri(ctx, cx + 6, HEAD_CY - 5, cx + 4, HEAD_CY - 10, cx + 2, HEAD_CY - 5, ear);
+      ctx.fillStyle = ear; ctx.fillRect(cx + 3, HEAD_CY - 14, 2, 2);
+    } else { // "pointed" -- the original ear shape
+      tri(ctx, cx - 8, HEAD_CY - 4, cx - 4, HEAD_CY - 12, cx - 1, HEAD_CY - 4, base);
+      tri(ctx, cx - 6, HEAD_CY - 5, cx - 4, HEAD_CY - 10, cx - 2, HEAD_CY - 5, ear);
+      tri(ctx, cx + 8, HEAD_CY - 4, cx + 4, HEAD_CY - 12, cx + 1, HEAD_CY - 4, base);
+      tri(ctx, cx + 6, HEAD_CY - 5, cx + 4, HEAD_CY - 10, cx + 2, HEAD_CY - 5, ear);
+    }
+  }
+
+  // ---- markings: drawn after the base head fill, before the eyes, so a
+  //      mask/stripe/spot always sits under the face, never over it ----
+  function drawMarking(ctx, marking, shade, accent2) {
+    ell(ctx, cx - 8, HEAD_CY + 2, cx + 8, HEAD_CY + 10, shade);
+    if (marking === "patch") {
+      ell(ctx, cx - 7, HEAD_CY - 6, cx - 1, HEAD_CY + 2, accent2);
+    } else if (marking === "stripe") {
+      ctx.fillStyle = accent2;
+      ctx.fillRect(cx - 2, HEAD_CY - 7, 4, 7);
+    } else if (marking === "spot") {
+      ell(ctx, cx + 3, HEAD_CY - 5, cx + 8, HEAD_CY, accent2);
+    } else if (marking === "mask") {
+      ctx.fillStyle = accent2;
+      ctx.fillRect(cx - 8, HEAD_CY - 1, 16, 5);
+    }
+  }
+
+  // ---- accessories: drawn on top of the eyes, the one purely cosmetic
+  //      layer -- glasses/headphones/bandana, or none at all ----
+  function drawAccessory(ctx, accessory, accent2) {
+    const eyeY = HEAD_CY + 2.5;
+    if (accessory === "glasses") {
+      ctx.strokeStyle = "#20181a";
+      ctx.lineWidth = 1;
+      ctx.strokeRect(cx - 7.8, eyeY - 3.6, 7, 7.2);
+      ctx.strokeRect(cx + 0.8, eyeY - 3.6, 7, 7.2);
+      ctx.beginPath(); ctx.moveTo(cx - 0.8, eyeY); ctx.lineTo(cx + 0.8, eyeY); ctx.stroke();
+      ctx.fillStyle = "rgba(255,255,255,0.18)";
+      ctx.fillRect(cx - 7.6, eyeY - 3.4, 6.6, 2.8);
+      ctx.fillRect(cx + 1, eyeY - 3.4, 6.6, 2.8);
+    } else if (accessory === "headphones") {
+      ctx.strokeStyle = "#2a2a2e";
+      ctx.lineWidth = 1.6;
+      ctx.beginPath();
+      ctx.arc(cx, HEAD_CY - 3, 10.5, Math.PI * 1.05, Math.PI * 1.95);
+      ctx.stroke();
+      ell(ctx, cx - 11, HEAD_CY - 2, cx - 6.5, HEAD_CY + 5, accent2);
+      ell(ctx, cx + 6.5, HEAD_CY - 2, cx + 11, HEAD_CY + 5, accent2);
+      ell(ctx, cx - 10, HEAD_CY - 1, cx - 7.5, HEAD_CY + 3.5, "#1c1c1f");
+      ell(ctx, cx + 7.5, HEAD_CY - 1, cx + 10, HEAD_CY + 3.5, "#1c1c1f");
+    } else if (accessory === "bandana") {
+      ctx.fillStyle = accent2;
+      ctx.fillRect(cx - 8, HEAD_CY + 5, 16, 3);
+      tri(ctx, cx - 8, HEAD_CY + 7, cx + 8, HEAD_CY + 7, cx, HEAD_CY + 13, accent2);
+    }
+  }
+
   // ---- layer 2: ears + head + big eyes (idle: hidden below fg's monitor;
   //      active: raised above it via CSS transform + z-index) ----
-  function drawHead(ctx, colors) {
+  function drawHead(ctx, traits) {
     ctx.clearRect(0, 0, W, H);
-    const { base, shade, ear, patch2 } = colors;
+    const { base, shade, ear, accent2, earShape, marking, accessory } = traits;
 
-    tri(ctx, cx - 8, HEAD_CY - 4, cx - 4, HEAD_CY - 12, cx - 1, HEAD_CY - 4, base);
-    tri(ctx, cx - 6, HEAD_CY - 5, cx - 4, HEAD_CY - 10, cx - 2, HEAD_CY - 5, ear);
-    tri(ctx, cx + 8, HEAD_CY - 4, cx + 4, HEAD_CY - 12, cx + 1, HEAD_CY - 4, base);
-    tri(ctx, cx + 6, HEAD_CY - 5, cx + 4, HEAD_CY - 10, cx + 2, HEAD_CY - 5, ear);
+    drawEars(ctx, earShape, base, ear);
     ell(ctx, cx - 8, HEAD_CY - 8, cx + 8, HEAD_CY + 10, base);
-    if (patch2) {
-      ell(ctx, cx - 7, HEAD_CY - 6, cx - 1, HEAD_CY + 2, patch2);
-      ell(ctx, cx + 1, HEAD_CY - 2, cx + 7, HEAD_CY + 6, shade);
-    } else {
-      ell(ctx, cx - 8, HEAD_CY + 2, cx + 8, HEAD_CY + 10, shade);
-    }
+    drawMarking(ctx, marking, shade, accent2);
 
     // big cute eyes -- only meaningfully visible once the head is raised
     const eyeY = HEAD_CY + 2.5;
@@ -979,6 +1188,8 @@
     // little blush
     ell(ctx, cx - 9, eyeY + 3, cx - 5.5, eyeY + 5.4, "rgba(255,140,140,0.45)");
     ell(ctx, cx + 5.5, eyeY + 3, cx + 9, eyeY + 5.4, "rgba(255,140,140,0.45)");
+
+    drawAccessory(ctx, accessory, accent2);
   }
 
   // ---- layer 3: monitor + desk + keyboard + paws + tail (occludes the
@@ -1036,12 +1247,12 @@
 
   function buildDesk(url, index) {
     const handle = parseHandle(url);
-    const colors = PALETTE[index % PALETTE.length];
+    const traits = getTraits(handle);
     const walletAddr = WALLETS[handle.replace("@", "")] || null;
 
     const btn = document.createElement("button");
     btn.className = "spot";
-    btn.style.setProperty("--dot-color", colors.led);
+    btn.style.setProperty("--dot-color", traits.led);
     btn.setAttribute("aria-label", handle + " on X");
 
     const clip = document.createElement("div");
@@ -1052,11 +1263,11 @@
     clip.appendChild(bgCanvas);
 
     const headCanvas = makeLayerCanvas("head");
-    drawHead(headCanvas.getContext("2d"), colors);
+    drawHead(headCanvas.getContext("2d"), traits);
     clip.appendChild(headCanvas);
 
     const fgCanvas = makeLayerCanvas("fg");
-    drawForeground(fgCanvas.getContext("2d"), colors, index % 2 === 0 ? 1 : -1);
+    drawForeground(fgCanvas.getContext("2d"), traits, traits.tailSide);
     clip.appendChild(fgCanvas);
 
     const scan = document.createElement("div");
@@ -1081,6 +1292,7 @@
       <div class="card-row">
         <a class="card-link" href="${url}" target="_blank" rel="noopener noreferrer">View X profile &#8599;</a>
         <button type="button" class="wallet-toggle">Wallet</button>
+        <button type="button" class="wallet-toggle card-share">Link</button>
       </div>
       <div class="wallet-panel">
         ${walletAddr
@@ -1123,6 +1335,25 @@
       document.body.removeChild(ta);
     }
 
+    // "Link" -- copies a URL that deep-links straight to this desk
+    // (#handle) so a beggar can share exactly where they are on the wall.
+    const shareBtn = card.querySelector(".card-share");
+    if (shareBtn) {
+      shareBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
+        const link = location.origin + location.pathname + "#" + encodeURIComponent(handle.replace("@", ""));
+        const done = () => {
+          shareBtn.textContent = "Copied!";
+          setTimeout(() => { shareBtn.textContent = "Link"; }, 1500);
+        };
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(link).then(done).catch(() => fallbackCopy(link, done));
+        } else {
+          fallbackCopy(link, done);
+        }
+      });
+    }
+
     btn.appendChild(card);
 
     btn.addEventListener("click", () => {
@@ -1146,7 +1377,7 @@
     btn.addEventListener("focus", () => { btn.classList.add("show"); positionCard(); });
     btn.addEventListener("blur", () => btn.classList.remove("show"));
 
-    return { btn, handle, colors };
+    return { btn, handle, traits };
   }
 
   const office = document.getElementById("office");
@@ -1157,13 +1388,105 @@
     PROFILES.length + " BEGGAR" + (PROFILES.length === 1 ? "" : "S") + " ON PAYROLL · STATUS: BEGGING HARD";
 
   const track = document.getElementById("ticker-track");
-  const items = built.map(({ handle, colors }, i) => `
+  const items = built.map(({ handle, traits }, i) => `
     <div class="ticker-item">
-      <span class="card-dot" style="background:${colors.led}; box-shadow:0 0 6px ${colors.led}"></span>
+      <span class="card-dot" style="background:${traits.led}; box-shadow:0 0 6px ${traits.led}"></span>
       ${BEG_LINES[i % BEG_LINES.length]} <b>${handle}</b>
     </div>
   `).join("");
   track.innerHTML = items + items; // duplicate for a seamless loop
+
+  // ==========================================================
+  // find-a-beggar: search box + #handle deep links. Both share the same
+  // "jump to this desk" behavior, so a shared link and a search result
+  // land the visitor in the same place: scrolled to, head popped up,
+  // card open -- exactly like clicking the desk yourself.
+  // ==========================================================
+  function slug(handle) { return handle.replace(/^@/, "").toLowerCase(); }
+
+  const deskByHandle = new Map();
+  built.forEach((d) => deskByHandle.set(slug(d.handle), d));
+
+  function openDesk(btn) {
+    document.querySelectorAll(".spot.active").forEach((s) => {
+      if (s === btn) return;
+      s.classList.remove("active");
+      const c = s.querySelector(".card");
+      if (c) c.classList.remove("wallet-open");
+    });
+    btn.classList.add("active");
+  }
+
+  function jumpToHandle(rawHandle) {
+    const desk = deskByHandle.get(slug(rawHandle));
+    if (!desk) return false;
+    desk.btn.scrollIntoView({ behavior: "smooth", block: "center" });
+    openDesk(desk.btn);
+    desk.btn.classList.remove("deep-link-flash");
+    // restart the animation even if it was just played
+    void desk.btn.offsetWidth;
+    desk.btn.classList.add("deep-link-flash");
+    setTimeout(() => desk.btn.classList.remove("deep-link-flash"), 1800);
+    return true;
+  }
+
+  function applyHashJump() {
+    const raw = decodeURIComponent(location.hash.slice(1) || "");
+    if (raw) jumpToHandle(raw);
+  }
+  window.addEventListener("hashchange", applyHashJump);
+  // wait a tick for layout/fonts to settle so scrollIntoView lands correctly
+  requestAnimationFrame(() => setTimeout(applyHashJump, 60));
+
+  const searchInput = document.getElementById("beggar-search");
+  const searchClear = document.getElementById("beggar-search-clear");
+  const searchStatus = document.getElementById("search-status");
+  let lastMatches = [];
+
+  function clearSearch() {
+    built.forEach((d) => d.btn.classList.remove("search-dim", "search-hit"));
+    lastMatches = [];
+    if (searchStatus) searchStatus.textContent = "";
+    if (searchClear) searchClear.hidden = true;
+  }
+
+  function runSearch(rawQuery) {
+    const q = rawQuery.trim().replace(/^@/, "").toLowerCase();
+    if (searchClear) searchClear.hidden = q.length === 0;
+    if (!q) { clearSearch(); return; }
+    lastMatches = [];
+    built.forEach((d) => {
+      const isMatch = slug(d.handle).includes(q);
+      d.btn.classList.toggle("search-hit", isMatch);
+      d.btn.classList.toggle("search-dim", !isMatch);
+      if (isMatch) lastMatches.push(d);
+    });
+    if (!searchStatus) return;
+    searchStatus.textContent =
+      lastMatches.length === 0 ? `no beggars match "${rawQuery.trim()}"` :
+      lastMatches.length === 1 ? "1 match — press Enter to jump" :
+      `${lastMatches.length} matches — press Enter to jump to the first`;
+  }
+
+  if (searchInput) {
+    searchInput.addEventListener("input", () => runSearch(searchInput.value));
+    searchInput.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && lastMatches[0]) {
+        jumpToHandle(lastMatches[0].handle);
+      } else if (e.key === "Escape") {
+        searchInput.value = "";
+        clearSearch();
+        searchInput.blur();
+      }
+    });
+  }
+  if (searchClear) {
+    searchClear.addEventListener("click", () => {
+      searchInput.value = "";
+      clearSearch();
+      searchInput.focus();
+    });
+  }
 
   document.addEventListener("click", (e) => {
     if (!e.target.closest(".spot")) {
