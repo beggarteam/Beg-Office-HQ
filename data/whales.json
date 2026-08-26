@@ -1,5 +1,11 @@
 {
   "cycleId": "cycle-1",
-  "updatedAt": "2026-08-26T17:56:32.011Z",
-  "whales": []
+  "updatedAt": "2026-08-26T18:40:56.165Z",
+  "whales": [
+    {
+      "address": "6UwX4LcB5Zbmn93aq8pkthXjADnT5SAomAsNvoqKGRgw",
+      "totalSol": 0.113677181,
+      "rank": 1
+    }
+  ]
 }
