@@ -36,10 +36,15 @@ jobs:
           TREASURY_PRIVATE_KEY: ${{ secrets.TREASURY_PRIVATE_KEY }}
         run: node scripts/run-cycle-check.mjs
 
+      - name: Quote the burn for any un-burned cycle (read-only, no funds move)
+        env:
+          HELIUS_API_KEY: ${{ secrets.HELIUS_API_KEY }}
+        run: node scripts/prepare-burn.mjs
+
       - name: Commit if changed
         run: |
           git config user.name "beg-office-bot"
           git config user.email "actions@github.com"
-          git add data/whales.json data/whale-state.json data/cycle.json data/cycles.json
-          git diff --cached --quiet || git commit -m "Update whale board / cycle state [skip ci]"
+          git add data/whales.json data/whale-state.json data/cycle.json data/cycles.json data/pending-burn.json
+          git diff --cached --quiet || git commit -m "Update whale board / cycle state / burn quote [skip ci]"
           git push
