@@ -1,3 +1,4 @@
+
 // The one step that actually spends treasury funds. This script is NEVER
 // run on a schedule — it only runs when you manually click "Run workflow"
 // on "Execute burn (manual approval)" in the Actions tab. That click is
@@ -16,6 +17,7 @@ import {
 } from "@solana/web3.js";
 import {
   getAssociatedTokenAddress, getAccount, createBurnInstruction,
+  TOKEN_PROGRAM_ID, TOKEN_2022_PROGRAM_ID,
 } from "@solana/spl-token";
 import bs58 from "bs58";
 import { LAMPORTS_PER_SOL } from "./lib/rpc.mjs";
@@ -42,6 +44,36 @@ async function readJson(file, fallback) {
 }
 async function writeJson(file, data) {
   await writeFile(path.join(DATA_DIR, file), JSON.stringify(data, null, 2));
+}
+function sleep(ms) {
+  return new Promise((r) => setTimeout(r, ms));
+}
+ 
+// Meme coins increasingly launch under Token-2022, not the classic SPL
+// Token program. The associated token account address (and the burn
+// instruction) differ depending on which one actually owns the mint, so
+// we ask the chain instead of assuming.
+async function detectTokenProgram(connection, mint) {
+  const info = await connection.getAccountInfo(mint);
+  if (!info) throw new Error(`Mint account ${mint.toBase58()} not found on-chain.`);
+  if (info.owner.equals(TOKEN_2022_PROGRAM_ID)) return TOKEN_2022_PROGRAM_ID;
+  if (info.owner.equals(TOKEN_PROGRAM_ID)) return TOKEN_PROGRAM_ID;
+  throw new Error(`Mint ${mint.toBase58()} is owned by an unrecognized program (${info.owner.toBase58()}).`);
+}
+ 
+// RPC read-after-write can lag a beat right after a transaction confirms —
+// retry a few times before concluding the account genuinely isn't there.
+async function getAccountWithRetry(connection, address, programId, attempts = 5) {
+  let lastErr;
+  for (let i = 1; i <= attempts; i++) {
+    try {
+      return await getAccount(connection, address, "confirmed", programId);
+    } catch (e) {
+      lastErr = e;
+      if (i < attempts) await sleep(1500);
+    }
+  }
+  throw lastErr;
 }
  
 async function main() {
@@ -144,8 +176,14 @@ async function main() {
     console.log(`Resuming: swap already done in a prior run (${buyTxSignature}). Skipping straight to the burn.`);
   }
  
-  const treasuryAta = await getAssociatedTokenAddress(mint, treasuryKeypair.publicKey);
-  const account = await getAccount(connection, treasuryAta);
+  const tokenProgramId = await detectTokenProgram(connection, mint);
+  console.log(
+    tokenProgramId.equals(TOKEN_2022_PROGRAM_ID)
+      ? "Mint is a Token-2022 token."
+      : "Mint uses the classic SPL Token program."
+  );
+  const treasuryAta = await getAssociatedTokenAddress(mint, treasuryKeypair.publicKey, false, tokenProgramId);
+  const account = await getAccountWithRetry(connection, treasuryAta, tokenProgramId);
   const burnAmount = account.amount; // burn the full balance the treasury is holding of this mint
   if (burnAmount <= 0n) {
     console.error(
@@ -157,7 +195,7 @@ async function main() {
   console.log(`Burning ${burnAmount.toString()} base units of ${pending.ticker}...`);
  
   const burnTx = new Transaction().add(
-    createBurnInstruction(treasuryAta, mint, treasuryKeypair.publicKey, burnAmount)
+    createBurnInstruction(treasuryAta, mint, treasuryKeypair.publicKey, burnAmount, [], tokenProgramId)
   );
   const { blockhash, lastValidBlockHeight } = await connection.getLatestBlockhash();
   burnTx.recentBlockhash = blockhash;
