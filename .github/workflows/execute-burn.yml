@@ -1,0 +1,41 @@
+name: Execute burn (manual approval)
+
+# This workflow NEVER runs on a schedule — only when you click "Run
+# workflow" below, on purpose. That click is the approval. Before running
+# it, check data/pending-burn.json (or the burn banner on the site) to see
+# the quoted amount and price impact for the coin you're about to buy and
+# burn.
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+concurrency:
+  group: execute-burn
+  cancel-in-progress: false
+
+jobs:
+  burn:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+      - run: npm install
+
+      - name: Buy the target coin with treasury SOL, then burn it
+        env:
+          HELIUS_API_KEY: ${{ secrets.HELIUS_API_KEY }}
+          TREASURY_PRIVATE_KEY: ${{ secrets.TREASURY_PRIVATE_KEY }}
+        run: node scripts/execute-burn.mjs
+
+      - name: Commit burn result
+        run: |
+          git config user.name "beg-office-bot"
+          git config user.email "actions@github.com"
+          git add data/cycles.json data/pending-burn.json
+          git diff --cached --quiet || git commit -m "Record executed burn [skip ci]"
+          git push
