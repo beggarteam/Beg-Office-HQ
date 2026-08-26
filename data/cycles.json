@@ -48,5 +48,54 @@
         "rank": 1
       }
     ]
+  },
+  {
+    "cycleId": "cycle-1",
+    "ticker": "$Pistacio",
+    "ca": "FZqdw6oSDCbHtKYxmhnfbi97SnyVy8jaYpdCoMrrjKa2",
+    "startedAt": "2026-08-26T18:00:00Z",
+    "endedAt": "2026-08-26T19:01:46.733Z",
+    "treasuryAtEndSol": 0.259515079,
+    "burnAmountSol": 0.160475102,
+    "burnTxSignature": null,
+    "distributedAmountSol": 0.079039976,
+    "perBeggarSol": 0.019759994,
+    "distribution": [
+      {
+        "handle": "beggarsceo",
+        "address": "EWEzfMttH3BrfffxVbJNk169ZULiFsMRwi6qHyTkZuK9",
+        "lamports": 19759994,
+        "signature": "2RPT1gQwB8UqhMS4s3yJfWudVVqtSFX4kmDA9nQBbg1QUzBVG3vHfXyp6KN45ewg3bFCGPubAm4t9hhJRRenfmm1",
+        "ok": true
+      },
+      {
+        "handle": "aloo2evil",
+        "address": "J1Qio9VYcZ8ayvzwadcDYUtj1Jqk6iU8snn6tdSdod9",
+        "lamports": 19759994,
+        "signature": "29UhWrTj7TVben6VNx5mRiYLfBEdTGEWhVdXev9JuHn527c3AHCez1D2HjfM1vrbXa5KxhycAfxAxkGKCfUSr2DJ",
+        "ok": true
+      },
+      {
+        "handle": "Alex0757",
+        "address": "Es7myoFDbRtzeWpb57M1HskkYg3RtuNcegBZAHKp6Ray",
+        "lamports": 19759994,
+        "signature": "4Ds7ChyV97hEQ1nEyatVonHTT4F2axCBTe4sbcT85Up1vZey6fN8PGQhErt7VnMbsuAYpGUFJUoZsjjA9Vaypggy",
+        "ok": true
+      },
+      {
+        "handle": "chloecadence",
+        "address": "6QPR7JJtPB2VrHtgHPKsEKn8ARqcu7NqioDRqqPT14oA",
+        "lamports": 19759994,
+        "signature": "37CEfi7h6hCuBiw4143KUXeaoFkA2HnPDGVH3Bk3JdBf9RDgDrscprLQWcJV36q9zTixx8kPPpgagEEuVYx3VKym",
+        "ok": true
+      }
+    ],
+    "topWhales": [
+      {
+        "address": "6UwX4LcB5Zbmn93aq8pkthXjADnT5SAomAsNvoqKGRgw",
+        "totalSol": 0.113677181,
+        "rank": 1
+      }
+    ]
   }
 ]
