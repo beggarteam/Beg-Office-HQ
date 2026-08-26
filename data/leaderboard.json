@@ -1,28 +1,28 @@
 {
-  "updatedAt": "2026-08-26T17:51:38.878Z",
+  "updatedAt": "2026-08-26T19:51:07.995Z",
   "entries": [
     {
       "handle": "beggarsceo",
       "wallet": "EWEzfMttH3BrfffxVbJNk169ZULiFsMRwi6qHyTkZuK9",
-      "solReceived": 0.015497428,
+      "solReceived": 0.035257422,
       "rank": 1
     },
     {
       "handle": "aloo2evil",
       "wallet": "J1Qio9VYcZ8ayvzwadcDYUtj1Jqk6iU8snn6tdSdod9",
-      "solReceived": 0.015497428,
+      "solReceived": 0.035257422,
       "rank": 2
     },
     {
       "handle": "chloecadence",
       "wallet": "6QPR7JJtPB2VrHtgHPKsEKn8ARqcu7NqioDRqqPT14oA",
-      "solReceived": 0.015497428,
+      "solReceived": 0.035257422,
       "rank": 3
     },
     {
       "handle": "Alex0757",
       "wallet": "Es7myoFDbRtzeWpb57M1HskkYg3RtuNcegBZAHKp6Ray",
-      "solReceived": 0.015497427,
+      "solReceived": 0.035257421,
       "rank": 4
     }
   ]
