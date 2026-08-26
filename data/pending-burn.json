@@ -5,9 +5,11 @@
   "burnLamports": 160475102,
   "burnAmountSol": 0.160475102,
   "slippageBps": 500,
-  "quotedAt": "2026-08-26T19:01:50.226Z",
+  "quotedAt": "2026-08-26T19:13:25.647Z",
   "buyTxSignature": null,
   "burnTxSignature": null,
-  "status": "no-route",
-  "message": "Jupiter couldn't find a swap route for this CA. It may still be on a pump.fun bonding curve and not migrated to a DEX yet, or the CA is wrong. You'll need to buy + burn this one manually."
+  "status": "awaiting-approval",
+  "expectedOutAmount": 2240.485292,
+  "priceImpactPct": 0.16468455653376374,
+  "message": "Ready to burn. Review the numbers, then run \"Execute burn (manual approval)\" from the Actions tab."
 }
