@@ -23,12 +23,17 @@
   or reordered around them. Nothing to configure here — just add the URL.
 
   ADDING A WALLET: find the WALLETS object just below PROFILES and add a
-  line mapping that beggar's X handle (no @) to their Solana address:
+  line mapping that beggar's X handle (no @) to their Solana address.
+  ALWAYS put quotes around the handle, even if it looks like a plain word —
+  a handle starting with a digit (like 0x_something) is invalid as an
+  unquoted key and will silently break EVERY beggar on the page, not just
+  that one, because it's a single JavaScript syntax error for the whole
+  script:
 
-    Alex0757: "your solana address here",
+    "Alex0757": "your solana address here",
 
   Beggars without an entry there just show "wallet coming soon" — nothing
-  breaks if you leave some blank for now.
+  breaks if you leave some blank for now (as long as the handle is quoted).
 
   NAMING A WHALE: if you figure out who a wallet on the whale board
   belongs to, find WHALE_PROFILES near WALLETS and add a line mapping
@@ -940,6 +945,17 @@
 <footer>We will make begging great again! Go and support the beggars who are beggin hard for $BEG</footer>
 
 <script>
+  // ==========================================================
+  // This block is deliberately its own <script> tag, separate from all
+  // the site logic below. If a hand-edit here has a typo (a missing
+  // comma, an unquoted handle that starts with a digit, etc.), THIS tag
+  // fails to load and the browser skips just it — the rest of the page
+  // (site logic, treasury box, whale board) keeps working and shows a
+  // clear "beggar list didn't load" message instead of going blank.
+  // Before this split, one typo anywhere in here silently broke the
+  // entire page, including features that have nothing to do with it.
+  // ==========================================================
+
   // ---- the only part you should ever need to edit ----
   // one X profile URL per beggar. add, remove, or reorder freely.
   const PROFILES = [
@@ -958,17 +974,16 @@
   // optional: give any beggar a Solana wallet by their X handle (no @).
   // leave it out and their card just shows "wallet coming soon".
   const WALLETS = {
-    beggarsceo: "EWEzfMttH3BrfffxVbJNk169ZULiFsMRwi6qHyTkZuK9",
-    aloo2evil: "J1Qio9VYcZ8ayvzwadcDYUtj1Jqk6iU8snn6tdSdod9",
-    Alex0757: "Es7myoFDbRtzeWpb57M1HskkYg3RtuNcegBZAHKp6Ray",
-    MMAJJORR: "314rwW3dwYu6pnBoQLrRxfvvoAzRs4DWmRD3tCq6yh6M",
-    Shadow_Zeiq: "FFXSbCuGnmwFAa2vhUSAF5KBN1byYkt1ZXd6pZngTvCK",
-    alifterh: "14FMcwwwbtCnM7BcCERBwbPpuhtySU3hd8NKLaev6fqn",
-    Calirighty9: "9ptNG8zhrnM9bSLL8KQC5KegQTkgvfRokpTHHdm5pJ5q",
-    Brisbanesdotfun: "2SwijHP45rdSpYVkLbKDP2ys8JR3rMWrbWJbzWVSev3f",
-    0x_barracuda: "Eu92M9zRZLkBzDeHRx6sHdkFiYFfexZzrJ7zsNXU47EY",
-    winyuki: "tS5Sx2eeyTmZRHMYn6sWjb2GqeJTjK3Pvx3oA1RiQY8",
-    
+    "beggarsceo": "EWEzfMttH3BrfffxVbJNk169ZULiFsMRwi6qHyTkZuK9",
+    "aloo2evil": "J1Qio9VYcZ8ayvzwadcDYUtj1Jqk6iU8snn6tdSdod9",
+    "Alex0757": "Es7myoFDbRtzeWpb57M1HskkYg3RtuNcegBZAHKp6Ray",
+    "MMAJJORR": "314rwW3dwYu6pnBoQLrRxfvvoAzRs4DWmRD3tCq6yh6M",
+    "Shadow_Zeiq": "FFXSbCuGnmwFAa2vhUSAF5KBN1byYkt1ZXd6pZngTvCK",
+    "alifterh": "14FMcwwwbtCnM7BcCERBwbPpuhtySU3hd8NKLaev6fqn",
+    "Calirighty9": "9ptNG8zhrnM9bSLL8KQC5KegQTkgvfRokpTHHdm5pJ5q",
+    "Brisbanesdotfun": "2SwijHP45rdSpYVkLbKDP2ys8JR3rMWrbWJbzWVSev3f",
+    "0x_barracuda": "Eu92M9zRZLkBzDeHRx6sHdkFiYFfexZzrJ7zsNXU47EY",
+    "winyuki": "tS5Sx2eeyTmZRHMYn6sWjb2GqeJTjK3Pvx3oA1RiQY8",
   };
 
   // optional: if you identify a whale on the board, map their wallet
@@ -977,7 +992,15 @@
   const WHALE_PROFILES = {
     // "their solana wallet address": "https://x.com/their_handle",
   };
-  // ------------------------------------------------------
+</script>
+
+<script>
+  // Everything below reads PROFILES/WALLETS/WHALE_PROFILES from the
+  // config block above but never edits them, and the one place that
+  // consumes PROFILES/WALLETS to build the office grid is wrapped in a
+  // try/catch (search for "beggar list didn't load") so a missing config
+  // script — the failure mode above guards against — degrades to a
+  // friendly message in the grid instead of taking the whole page down.
 
   // ---- per-beggar look: every trait below (fur color, ear shape,
   // marking, accessory) is derived by hashing the beggar's own X handle,
@@ -1386,11 +1409,21 @@
   }
 
   const office = document.getElementById("office");
-  const built = PROFILES.map((url, i) => buildDesk(url, i));
-  built.forEach(({ btn }) => office.appendChild(btn));
-
-  document.getElementById("eyebrow-text").textContent =
-    PROFILES.length + " BEGGAR" + (PROFILES.length === 1 ? "" : "S") + " ON PAYROLL · STATUS: BEGGING HARD";
+  const eyebrowText = document.getElementById("eyebrow-text");
+  let built = [];
+  try {
+    // this throws ReferenceError if the config <script> above failed to
+    // load (e.g. a typo in PROFILES/WALLETS) -- caught below so the rest
+    // of the page (treasury, whale board, cycle panel) still works.
+    built = PROFILES.map((url, i) => buildDesk(url, i));
+    built.forEach(({ btn }) => office.appendChild(btn));
+    eyebrowText.textContent =
+      PROFILES.length + " BEGGAR" + (PROFILES.length === 1 ? "" : "S") + " ON PAYROLL · STATUS: BEGGING HARD";
+  } catch (err) {
+    console.error("Beggar list didn't load — check PROFILES/WALLETS near the top of index.html for a typo (e.g. an unquoted handle key like 0x_something).", err);
+    office.innerHTML = `<p style="grid-column:1/-1;padding:28px 16px;text-align:center;font-family:var(--font-mono);font-size:0.8rem;color:var(--ink-dim);">couldn't load the beggar list &mdash; there's likely a typo in PROFILES or WALLETS near the top of index.html.<br>open the browser console for details.</p>`;
+    eyebrowText.textContent = "BEGGAR LIST DIDN'T LOAD — CHECK CONSOLE";
+  }
 
   const track = document.getElementById("ticker-track");
   const items = built.map(({ handle, traits }, i) => `
