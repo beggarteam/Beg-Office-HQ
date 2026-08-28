@@ -6,10 +6,11 @@
   "burnAmountSol": 0.074958757,
   "slippageBps": 500,
   "quotedAt": "2026-08-28T22:48:01.035Z",
-  "buyTxSignature": null,
-  "burnTxSignature": null,
-  "status": "awaiting-approval",
+  "buyTxSignature": "L5xTFSXWiPWtHAoNaHT6goVFLxR39JQ5Yn1J1xxeSaJYaAZETrEBbWQjExJ9aosjMdBHPfeNXrC5ofZv6gPGUny",
+  "burnTxSignature": "4DE9P5dkvz6Eh3cvXJkWnGTpos8MKXYXUQd9Nipq8WrtceFVSPp5BioC2GgVmbtfBUhk4Tduqp5Xc4u3W92okERH",
+  "status": "executed",
   "expectedOutAmount": 22.410619,
   "priceImpactPct": 0.029863761045887696,
-  "message": "Ready to burn. Review the numbers, then run \"Execute burn (manual approval)\" from the Actions tab."
+  "message": "Burn complete.",
+  "executedAt": "2026-08-28T22:49:54.103Z"
 }
