@@ -232,5 +232,61 @@
       }
     ],
     "buyTxSignature": "wkPX7YxhK5JfjK98qtMuhgw1UecBmH48XCkmoZ5wNVNDT7A7X8qUMFZrdADn4GD3u1UyEdGVVGrkdT1yGKKL47o"
+  },
+  {
+    "cycleId": "2026-08-28-ansem-2",
+    "ticker": "$ANSEM",
+    "ca": "9cRCn9rGT8V2imeM2BaKs13yhMEais3ruM3rPvTGpump",
+    "startedAt": "2026-08-28T21:15:23Z",
+    "endedAt": "2026-08-28T22:47:53.241Z",
+    "treasuryAtEndSol": 0.131878743,
+    "burnAmountSol": 0.074958757,
+    "burnTxSignature": null,
+    "distributedAmountSol": 0.036919985,
+    "perBeggarSol": 0.007383997,
+    "distribution": [
+      {
+        "handle": "beggarsceo",
+        "address": "EWEzfMttH3BrfffxVbJNk169ZULiFsMRwi6qHyTkZuK9",
+        "lamports": 7383997,
+        "signature": "2RujPpxPBQxYiGbMpwV32SeuzXPG9no6hKP7AZNWUt3pUmmygAAniMwp7NARgSSaTDd7g9Ju6oS2oxqy528gPgqg",
+        "ok": true
+      },
+      {
+        "handle": "Alex0757",
+        "address": "Es7myoFDbRtzeWpb57M1HskkYg3RtuNcegBZAHKp6Ray",
+        "lamports": 7383997,
+        "signature": "3b67x83oUx21YxZX4uHCb6CGFTJmzscyx2nECXwWupW5iqdp3LvvFSFCrrwmcC2jPPhfe9bBkZGJtVM8R8ouNQWn",
+        "ok": true
+      },
+      {
+        "handle": "PompinSam",
+        "address": "AsWDULbDYDCy23Wo1y3TPGjEndUyCXXiT1jTdABn68GE",
+        "lamports": 7383997,
+        "signature": "4VsaQE7ZskyTes2vLa9RZXESpdcdST2nFWD42vaJAEmzTCwosYEy36VKiUBA99fzdAo469NbyyehEbwW9cnaJgqP",
+        "ok": true
+      },
+      {
+        "handle": "florynlauryn",
+        "address": "ASWyJqRYv1sQps2iFFnAMGmN6ZjkFoj5nBqfuSCNAY11",
+        "lamports": 7383997,
+        "signature": "561Zm5VuUc5bkxKbT1K6prvEaos2ddfU9HTpQSRHSSKCjq7tdKLraFFYZK8BkHFL2rpyp74tTxwm7LrwR86fG3vi",
+        "ok": true
+      },
+      {
+        "handle": "0xveyraa",
+        "address": "3UuCBjmtJemFpQ7fSX76E5hL7PcmShkmkLyERo7dzZNv",
+        "lamports": 7383997,
+        "signature": "5AXkQMKQLznzSTgqZwoPBZ1iM7ug79oEW718TqbxamhTtA6uh7BScwu6BZiiAbLDRz4631JFVrRcwnAPth9GtAV1",
+        "ok": true
+      }
+    ],
+    "topWhales": [
+      {
+        "address": "67sYBdDaiMGgaebdYyt1mLVxSmzR7wYpAuWW8dw6iHhL",
+        "totalSol": 0.11,
+        "rank": 1
+      }
+    ]
   }
 ]

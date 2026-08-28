@@ -1,3 +1,15 @@
 {
-  "status": "none"
+  "cycleId": "2026-08-28-ansem-2",
+  "ticker": "$ANSEM",
+  "ca": "9cRCn9rGT8V2imeM2BaKs13yhMEais3ruM3rPvTGpump",
+  "burnLamports": 74958757,
+  "burnAmountSol": 0.074958757,
+  "slippageBps": 500,
+  "quotedAt": "2026-08-28T22:48:01.035Z",
+  "buyTxSignature": null,
+  "burnTxSignature": null,
+  "status": "awaiting-approval",
+  "expectedOutAmount": 22.410619,
+  "priceImpactPct": 0.029863761045887696,
+  "message": "Ready to burn. Review the numbers, then run \"Execute burn (manual approval)\" from the Actions tab."
 }
