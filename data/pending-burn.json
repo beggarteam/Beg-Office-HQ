@@ -1,16 +1,3 @@
 {
-  "cycleId": "2026-08-28-ansem-2",
-  "ticker": "$ANSEM",
-  "ca": "9cRCn9rGT8V2imeM2BaKs13yhMEais3ruM3rPvTGpump",
-  "burnLamports": 74958757,
-  "burnAmountSol": 0.074958757,
-  "slippageBps": 500,
-  "quotedAt": "2026-08-28T22:48:01.035Z",
-  "buyTxSignature": "L5xTFSXWiPWtHAoNaHT6goVFLxR39JQ5Yn1J1xxeSaJYaAZETrEBbWQjExJ9aosjMdBHPfeNXrC5ofZv6gPGUny",
-  "burnTxSignature": "4DE9P5dkvz6Eh3cvXJkWnGTpos8MKXYXUQd9Nipq8WrtceFVSPp5BioC2GgVmbtfBUhk4Tduqp5Xc4u3W92okERH",
-  "status": "executed",
-  "expectedOutAmount": 22.410619,
-  "priceImpactPct": 0.029863761045887696,
-  "message": "Burn complete.",
-  "executedAt": "2026-08-28T22:49:54.103Z"
+  "status": "none"
 }
