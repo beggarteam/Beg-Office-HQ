@@ -1,8 +1,8 @@
 {
-  "cycleId": null,
-  "ticker": "TBA",
-  "ca": "TBA",
-  "startedAt": null,
-  "endsAt": null,
-  "status": "idle"
+  "cycleId": "2026-08-28-ansem",
+  "ticker": "$ANSEM",
+  "ca": "9cRCn9rGT8V2imeM2BaKs13yhMEais3ruM3rPvTGpump",
+  "startedAt": "2026-08-28T20:33:23Z",
+  "endsAt": "2026-08-28T20:33:23Z",
+  "status": "active"
 }
