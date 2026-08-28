@@ -98,5 +98,138 @@
       }
     ],
     "buyTxSignature": "uUBMAKaLhJqomuRBMiZwUcZxbLdtVwn7YBAFQUSJtv63b8QeKLXpnc9PshonzxBbTYKNit3jjeW7HYQTJTEMBKN"
+  },
+  {
+    "cycleId": "2026-08-28-ansem",
+    "ticker": "$ANSEM",
+    "ca": "9cRCn9rGT8V2imeM2BaKs13yhMEais3ruM3rPvTGpump",
+    "startedAt": "2026-08-28T20:33:23Z",
+    "endedAt": "2026-08-28T21:06:16.028Z",
+    "treasuryAtEndSol": 0.147892175,
+    "burnAmountSol": 0.085687757,
+    "burnTxSignature": null,
+    "distributedAmountSol": 0.042204416,
+    "perBeggarSol": 0.002637776,
+    "distribution": [
+      {
+        "handle": "beggarsceo",
+        "address": "EWEzfMttH3BrfffxVbJNk169ZULiFsMRwi6qHyTkZuK9",
+        "lamports": 2637776,
+        "signature": "31NKRBH6577YjZC3vwYNtvfGHeZou3EuWpuey9k4mGwUUtHhMBRoFDan9JhpsbJwK13kuUPPJkYRVE1KTNcDeqRk",
+        "ok": true
+      },
+      {
+        "handle": "aloo2evil",
+        "address": "J1Qio9VYcZ8ayvzwadcDYUtj1Jqk6iU8snn6tdSdod9",
+        "lamports": 2637776,
+        "signature": "678fwKK6UvXu6mfXmmXkT29oF22hCFz2BxnLJsFxCy4kSxxSXpPzcfFrjkNwtSsvwBQuSFkccunp57Jpsz8PT2ps",
+        "ok": true
+      },
+      {
+        "handle": "Alex0757",
+        "address": "Es7myoFDbRtzeWpb57M1HskkYg3RtuNcegBZAHKp6Ray",
+        "lamports": 2637776,
+        "signature": "3XerguiW56yvDxJ9aYAA5kPXhtiUzuiLpzQmXNcNDRsFw5NPtjpENz8uWqT5Kke87mNSkNyDmVchVptcCbryZiUD",
+        "ok": true
+      },
+      {
+        "handle": "MMAJJORR",
+        "address": "314rwW3dwYu6pnBoQLrRxfvvoAzRs4DWmRD3tCq6yh6M",
+        "lamports": 2637776,
+        "signature": "5DZV8VVY8CACB1VuBErz5yXFrwqZsV4vqvoC7zFAnB1YN2GGQc8wZfzTTNvFqRXZ5QqB7r23RZB8kQkgDC5mgGuE",
+        "ok": true
+      },
+      {
+        "handle": "Shadow_Zeiq",
+        "address": "FFXSbCuGnmwFAa2vhUSAF5KBN1byYkt1ZXd6pZngTvCK",
+        "lamports": 2637776,
+        "signature": "BedTaByyozRcbRwbaeZ7YnxF7RBMREKnyfW5mvJghK1sAk9KLpBBHuXz3VvLY4BgPDwmAWt6Fy38EzFEKo9PkUu",
+        "ok": true
+      },
+      {
+        "handle": "alifterh",
+        "address": "14FMcwwwbtCnM7BcCERBwbPpuhtySU3hd8NKLaev6fqn",
+        "lamports": 2637776,
+        "signature": "3vHHWUQz31pFrvyJ2Ep1qERBn726yJcDYnmqo23EGKFtTpffmovTbpxfLoedKCyZaUPJ1QqNit11rG8Zo4e3RGAY",
+        "ok": true
+      },
+      {
+        "handle": "Calirighty9",
+        "address": "9ptNG8zhrnM9bSLL8KQC5KegQTkgvfRokpTHHdm5pJ5q",
+        "lamports": 2637776,
+        "signature": "2fRfboGuLjjYeGMMfUVUHMbCrZ1aoqT8P1GrTbnFWX1YVoHm6mTBHVy8w3Nwegmc5FkHUpLKZXXWvcTDh1E4aMMy",
+        "ok": true
+      },
+      {
+        "handle": "Brisbanesdotfun",
+        "address": "2SwijHP45rdSpYVkLbKDP2ys8JR3rMWrbWJbzWVSev3f",
+        "lamports": 2637776,
+        "signature": "2eGkBNiPZNZWvMVgBjMTr1EY63hEmBZV15ciMSyH1MDgyPAubRGBh1jMiFN11FoXzhyCb8RC1AQ15cXLjV4a93W6",
+        "ok": true
+      },
+      {
+        "handle": "0x_barracuda",
+        "address": "Eu92M9zRZLkBzDeHRx6sHdkFiYFfexZzrJ7zsNXU47EY",
+        "lamports": 2637776,
+        "signature": "ydT1M3erpZxvmopmC13UfvrA8n1vAX4DjYQkPV9kkBsyFRSpYcLrbGP5AYCPXaex311P4bxDc3qFCPzwxykauhL",
+        "ok": true
+      },
+      {
+        "handle": "winyuki",
+        "address": "tS5Sx2eeyTmZRHMYn6sWjb2GqeJTjK3Pvx3oA1RiQY8",
+        "lamports": 2637776,
+        "signature": "63HY8QQU9daeMmR4fPMBd4ihyV1ySkmeHTfoT4rAfcwBWM2Re1cfyVe7KEEofNgsrjsDP5hsmn5FHhtrUg7bXtEQ",
+        "ok": true
+      },
+      {
+        "handle": "zayvynswaggo",
+        "address": "CEYByH2rw1gemGquQb3i9AMWGk8CoFDZpAoPaS9zjTHp",
+        "lamports": 2637776,
+        "signature": "2U5Q9ZjpHou7Vu3AyeQYAUvVQoi8nH8vDoz9NAVojSqTjEZT5URgLj4TLFYzqgv3CfYcc5AvmD9qgBhveezKFXmc",
+        "ok": true
+      },
+      {
+        "handle": "Kris59790",
+        "address": "CyGmwuBh19z9yFu8vPzZdLzFG48fZoTdeDeCzocaUW7b",
+        "lamports": 2637776,
+        "signature": "3FjcFLV8fCuNXfaqLeafMubPbnDUtiPrfAdX5nyNNuxisyzbaPAQ7MTcundJL9JqKPELU8Gza62i72hQEAjM9f6C",
+        "ok": true
+      },
+      {
+        "handle": "Rimanamm",
+        "address": "gTVMJy7snLUyE4VcaRnE6aUcp62xKnMCga5Eb3z971S",
+        "lamports": 2637776,
+        "signature": "39U7W85SyzVYJKKMyJVTkpbUAyFSRRWKZTgkDV8S3QzeD4RsxXUmNqXvzaZ7vsCWaCtoEwuT6NRs3JNXg86nu7gH",
+        "ok": true
+      },
+      {
+        "handle": "Temitope468867",
+        "address": "7LG7taEB5Zx1Sg8qCEX8xD3GctLG7nJXAbR2Hwrsf1Wu",
+        "lamports": 2637776,
+        "signature": "3AHLbTbTfD5uUPEVkbyjWXNXMMoeoEtPLB2ktLdtJCgZzi46h5KvMxgqD886dMz4UVFzKB3bbyZsfT91rzcsn4yi",
+        "ok": true
+      },
+      {
+        "handle": "PompinSam",
+        "address": "AsWDULbDYDCy23Wo1y3TPGjEndUyCXXiT1jTdABn68GE",
+        "lamports": 2637776,
+        "signature": "5G4wQqxusCmFLFvRHmer6YzJznr7wnQu5dsxcdq3z8SGGfFRLcdjM2xD6nxckhsdppoy9ax6ffbhjusJb8eFoiUw",
+        "ok": true
+      },
+      {
+        "handle": "florynlauryn",
+        "address": "ASWyJqRYv1sQps2iFFnAMGmN6ZjkFoj5nBqfuSCNAY11",
+        "lamports": 2637776,
+        "signature": "52VHZ82mEvnS7X5kW5NGH4Q1mg1kpmTephUtAQwKVje6vgwZYsGMhkEUxgWS9eamgfEcck6kTQne8Xhgo46rpRFv",
+        "ok": true
+      }
+    ],
+    "topWhales": [
+      {
+        "address": "67sYBdDaiMGgaebdYyt1mLVxSmzR7wYpAuWW8dw6iHhL",
+        "totalSol": 0.11,
+        "rank": 1
+      }
+    ]
   }
 ]

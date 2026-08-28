@@ -1,5 +1,11 @@
 {
   "cycleId": "2026-08-28-ansem",
-  "updatedAt": "2026-08-28T20:37:14.005Z",
-  "whales": []
+  "updatedAt": "2026-08-28T21:06:15.861Z",
+  "whales": [
+    {
+      "address": "67sYBdDaiMGgaebdYyt1mLVxSmzR7wYpAuWW8dw6iHhL",
+      "totalSol": 0.11,
+      "rank": 1
+    }
+  ]
 }
