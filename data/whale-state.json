@@ -1,11 +1,6 @@
 {
-  "cycleId": "2026-08-28-ansem",
-  "lastSignature": "5rJQsTPJaCBMa1Caz4QKxJ5b5UReuTx95JzghKDG54o67cggbptQfDWb2SzsEARCCSSyPrDEeGg8WxTDHPjEwxQV",
-  "totals": {
-    "Eu92M9zRZLkBzDeHRx6sHdkFiYFfexZzrJ7zsNXU47EY": "20000000",
-    "67sYBdDaiMGgaebdYyt1mLVxSmzR7wYpAuWW8dw6iHhL": "110000000"
-  },
-  "qualified": [
-    "67sYBdDaiMGgaebdYyt1mLVxSmzR7wYpAuWW8dw6iHhL"
-  ]
+  "cycleId": "2026-08-28-ansem-2",
+  "lastSignature": "2LVfB26PKfF9NGG8eRQxyw5HvJyu7BVpn44uL2w4uMzwsNxA5EHvJigKn8wDXfmAYgH91Zz5MFxystkYJHuMzvZi",
+  "totals": {},
+  "qualified": []
 }
