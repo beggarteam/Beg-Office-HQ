@@ -289,5 +289,19 @@
       }
     ],
     "buyTxSignature": "L5xTFSXWiPWtHAoNaHT6goVFLxR39JQ5Yn1J1xxeSaJYaAZETrEBbWQjExJ9aosjMdBHPfeNXrC5ofZv6gPGUny"
+  },
+  {
+    "cycleId": "2026-08-28-3",
+    "ticker": "$fone",
+    "ca": "CTPoyCwkjMvoJwU4xvZZqoD8tiYk6yDchySiN5gGpump",
+    "startedAt": "2026-08-28T22:55:00Z",
+    "endedAt": "2026-08-29T00:38:08.801Z",
+    "treasuryAtEndSol": 0.017890901,
+    "burnAmountSol": 0,
+    "burnTxSignature": null,
+    "distributedAmountSol": 0,
+    "perBeggarSol": 0,
+    "distribution": [],
+    "topWhales": []
   }
 ]
